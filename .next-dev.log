@@ -1,0 +1,304 @@
+
+> packpro-slip@0.1.0 dev
+> next dev
+
+- [32mready[39m started server on [::]:3000, url: http://localhost:3000
+- [35mevent[39m compiled client and server successfully in 111 ms (20 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 90 ms (20 modules)
+- [36mwait[39m compiling /page (client and server)...
+- [35mevent[39m compiled client and server successfully in 1960 ms (428 modules)
+- [36mwait[39m compiling /favicon.ico/route (client and server)...
+- [35mevent[39m compiled client and server successfully in 324 ms (465 modules)
+- [36mwait[39m compiling /packing-slip/new/page (client and server)...
+- [35mevent[39m compiled client and server successfully in 147 ms (474 modules)
+- [36mwait[39m compiling /api/items/route (client and server)...
+- [35mevent[39m compiled successfully in 68 ms (255 modules)
+- [36mwait[39m compiling /items/new/page (client and server)...
+- [35mevent[39m compiled client and server successfully in 226 ms (411 modules)
+- [36mwait[39m compiling /api/items/route (client and server)...
+- [35mevent[39m compiled successfully in 45 ms (233 modules)
+- [36mwait[39m compiling /api/packing-slips/route (client and server)...
+- [35mevent[39m compiled successfully in 60 ms (235 modules)
+- [36mwait[39m compiling /api/packing-slips/[id]/pdf/route (client and server)...
+- [35mevent[39m compiled successfully in 40 ms (238 modules)
+- [31merror[39m browserType.launch: Browser closed.
+==================== Browser output: ====================
+<launching> /Users/lijolawrance/Library/Caches/ms-playwright/chromium-1084/chrome-mac/Chromium.app/Contents/MacOS/Chromium --disable-field-trial-config --disable-background-networking --enable-features=NetworkService,NetworkServiceInProcess --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=ImprovedCookieControls,LazyFrameLoading,GlobalMediaControls,DestroyProfileOnBrowserClose,MediaRouter,DialMediaRouteProvider,AcceptCHFrame,AutoExpandDetailsElement,CertificateTransparencyComponentUpdater,AvoidUnnecessaryBeforeUnloadCheckSync,Translate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --enable-automation --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --enable-use-zoom-for-dsf=false --use-angle --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/dz/pykph_q50n1bbwyl0r3rrb980000gn/T/playwright_chromiumdev_profile-zVloIu --remote-debugging-pipe --no-startup-window
+<launched> pid=85637
+[pid=85637][err] Received signal 11 SEGV_ACCERR 000100000008
+[pid=85637][err]  [0x000119e3f2a4]
+[pid=85637][err]  [0x00011df27484]
+[pid=85637][err]  [0x00011df33e2c]
+[pid=85637][err]  [0x00019476b744]
+[pid=85637][err]  [0x0001a7e7e2dc]
+[pid=85637][err]  [0x0001a7d18de8]
+[pid=85637][err]  [0x0001a7a1e5a8]
+[pid=85637][err]  [0x0001a7a1f114]
+[pid=85637][err]  [0x00019661faa8]
+[pid=85637][err]  [0x000196620818]
+[pid=85637][err]  [0x00019999abbc]
+[pid=85637][err]  [0x0001945bead4]
+[pid=85637][err]  [0x0001945a7a60]
+[pid=85637][err]  [0x000199999f20]
+[pid=85637][err]  [0x000198bf84c4]
+[pid=85637][err]  [0x00019943664c]
+[pid=85637][err]  [0x000198c0c0cc]
+[pid=85637][err]  [0x000198d05b60]
+[pid=85637][err]  [0x000198c0b68c]
+[pid=85637][err]  [0x00011df3cd40]
+[pid=85637][err]  [0x00011df3b724]
+[pid=85637][err]  [0x00011def3d18]
+[pid=85637][err]  [0x00011dec2824]
+[pid=85637][err]  [0x00011c06fe1c]
+[pid=85637][err]  [0x00011c071704]
+[pid=85637][err]  [0x000123a80b18]
+[pid=85637][err]  [0x00011d32bbdc]
+[pid=85637][err]  [0x00011d32ce60]
+[pid=85637][err]  [0x00011d32cbe0]
+[pid=85637][err]  [0x00011d32b1b8]
+[pid=85637][err]  [0x00011d32b5bc]
+[pid=85637][err]  [0x000123a71594]
+[pid=85637][err]  [0x000119e14f08]
+[pid=85637][err]  [0x000102ed4938]
+[pid=85637][err]  [0x000194399d54]
+[pid=85637][err] [end of stack trace]
+=========================== logs ===========================
+<launching> /Users/lijolawrance/Library/Caches/ms-playwright/chromium-1084/chrome-mac/Chromium.app/Contents/MacOS/Chromium --disable-field-trial-config --disable-background-networking --enable-features=NetworkService,NetworkServiceInProcess --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=ImprovedCookieControls,LazyFrameLoading,GlobalMediaControls,DestroyProfileOnBrowserClose,MediaRouter,DialMediaRouteProvider,AcceptCHFrame,AutoExpandDetailsElement,CertificateTransparencyComponentUpdater,AvoidUnnecessaryBeforeUnloadCheckSync,Translate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --enable-automation --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --enable-use-zoom-for-dsf=false --use-angle --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/dz/pykph_q50n1bbwyl0r3rrb980000gn/T/playwright_chromiumdev_profile-zVloIu --remote-debugging-pipe --no-startup-window
+<launched> pid=85637
+[pid=85637][err] Received signal 11 SEGV_ACCERR 000100000008
+[pid=85637][err]  [0x000119e3f2a4]
+[pid=85637][err]  [0x00011df27484]
+[pid=85637][err]  [0x00011df33e2c]
+[pid=85637][err]  [0x00019476b744]
+[pid=85637][err]  [0x0001a7e7e2dc]
+[pid=85637][err]  [0x0001a7d18de8]
+[pid=85637][err]  [0x0001a7a1e5a8]
+[pid=85637][err]  [0x0001a7a1f114]
+[pid=85637][err]  [0x00019661faa8]
+[pid=85637][err]  [0x000196620818]
+[pid=85637][err]  [0x00019999abbc]
+[pid=85637][err]  [0x0001945bead4]
+[pid=85637][err]  [0x0001945a7a60]
+[pid=85637][err]  [0x000199999f20]
+[pid=85637][err]  [0x000198bf84c4]
+[pid=85637][err]  [0x00019943664c]
+[pid=85637][err]  [0x000198c0c0cc]
+[pid=85637][err]  [0x000198d05b60]
+[pid=85637][err]  [0x000198c0b68c]
+[pid=85637][err]  [0x00011df3cd40]
+[pid=85637][err]  [0x00011df3b724]
+[pid=85637][err]  [0x00011def3d18]
+[pid=85637][err]  [0x00011dec2824]
+[pid=85637][err]  [0x00011c06fe1c]
+[pid=85637][err]  [0x00011c071704]
+[pid=85637][err]  [0x000123a80b18]
+[pid=85637][err]  [0x00011d32bbdc]
+[pid=85637][err]  [0x00011d32ce60]
+[pid=85637][err]  [0x00011d32cbe0]
+[pid=85637][err]  [0x00011d32b1b8]
+[pid=85637][err]  [0x00011d32b5bc]
+[pid=85637][err]  [0x000123a71594]
+[pid=85637][err]  [0x000119e14f08]
+[pid=85637][err]  [0x000102ed4938]
+[pid=85637][err]  [0x000194399d54]
+[pid=85637][err] [end of stack trace]
+============================================================
+    at GET (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/src/app/api/packing-slips/[id]/pdf/route.ts:25:76)
+    at eval (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/future/route-modules/app-route/module.js:254:43)
+    at eval (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/lib/trace/tracer.js:111:36)
+    at NoopContextManager.with (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/compiled/@opentelemetry/api/index.js:360:30)
+    at ContextAPI.with (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/compiled/@opentelemetry/api/index.js:30:58)
+    at NoopTracer.startActiveSpan (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/compiled/@opentelemetry/api/index.js:953:34)
+    at ProxyTracer.startActiveSpan (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/compiled/@opentelemetry/api/index.js:993:36)
+    at eval (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/lib/trace/tracer.js:100:107)
+    at NoopContextManager.with (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/compiled/@opentelemetry/api/index.js:360:30)
+    at ContextAPI.with (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/compiled/@opentelemetry/api/index.js:30:58)
+    at NextTracerImpl.trace (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/lib/trace/tracer.js:100:32)
+    at eval (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/future/route-modules/app-route/module.js:242:53)
+    at Object.wrap (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/async-storage/static-generation-async-storage-wrapper.js:42:24)
+    at eval (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/future/route-modules/app-route/module.js:196:97)
+    at Object.wrap (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/async-storage/request-async-storage-wrapper.js:82:24)
+    at eval (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/future/route-modules/app-route/module.js:195:75)
+    at AppRouteRouteModule.execute (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/future/route-modules/app-route/module.js:192:56)
+    at AppRouteRouteModule.handle (/Users/lijolawrance/work/analytixkraft/PackproSlip/webpack-internal:/(rsc)/node_modules/next/dist/server/future/route-modules/app-route/module.js:315:41)
+    at doRender (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1091:56)
+    at cacheEntry.responseCache.get.incrementalCache.incrementalCache (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1290:46)
+    at /Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/response-cache/index.js:99:42
+    at ResponseCache.get (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/response-cache/index.js:149:11)
+    at DevServer.renderToResponseWithComponentsImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1219:53)
+    at async DevServer.renderPageComponent (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1451:24)
+    at async DevServer.renderToResponseImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1495:32)
+    at async DevServer.pipeImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:735:25)
+    at async DevServer.handleCatchallRenderRequest (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/next-server.js:703:13)
+    at async DevServer.handleRequestImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:647:17) {
+  name: 'Error'
+}
+- [36mwait[39m compiling...
+- [35mevent[39m compiled successfully in 82 ms (238 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 113 ms (464 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 67 ms (464 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 436 ms (464 modules)
+- [36mwait[39m compiling...
+- [36mwait[39m compiling /api/items/route (client and server)...
+- [36mwait[39m compiling /api/vendors/route (client and server)...
+- [35mevent[39m compiled client and server successfully in 386 ms (463 modules)
+- [31merror[39m TypeError: Cannot read properties of undefined (reading 'findMany')
+    at GET (webpack-internal:///(rsc)/./src/app/api/vendors/route.ts:13:82)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:254:43)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/trace/tracer.js:111:36)
+    at NoopContextManager.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:360:30)
+    at ContextAPI.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:30:58)
+    at NoopTracer.startActiveSpan (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:953:34)
+    at ProxyTracer.startActiveSpan (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:993:36)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/trace/tracer.js:100:107)
+    at NoopContextManager.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:360:30)
+    at ContextAPI.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:30:58)
+    at NextTracerImpl.trace (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/trace/tracer.js:100:32)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:242:53)
+    at AsyncLocalStorage.run (node:async_hooks:322:14)
+    at Object.wrap (webpack-internal:///(rsc)/./node_modules/next/dist/server/async-storage/static-generation-async-storage-wrapper.js:42:24)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:196:97)
+    at AsyncLocalStorage.run (node:async_hooks:322:14)
+    at Object.wrap (webpack-internal:///(rsc)/./node_modules/next/dist/server/async-storage/request-async-storage-wrapper.js:82:24)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:195:75)
+    at AsyncLocalStorage.run (node:async_hooks:322:14)
+    at AppRouteRouteModule.execute (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:192:56)
+    at AppRouteRouteModule.handle (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:315:41)
+    at doRender (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1091:56)
+    at cacheEntry.responseCache.get.incrementalCache.incrementalCache (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1300:34)
+    at /Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/response-cache/index.js:99:42
+    at ResponseCache.get (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/response-cache/index.js:149:11)
+    at DevServer.renderToResponseWithComponentsImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1219:53)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async DevServer.renderPageComponent (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1451:24)
+    at async DevServer.renderToResponseImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1495:32)
+    at async DevServer.pipeImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:735:25)
+    at async DevServer.handleCatchallRenderRequest (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/next-server.js:703:13)
+    at async DevServer.handleRequestImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:647:17)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 380 ms (477 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 72 ms (463 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 74 ms (411 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 93 ms (411 modules)
+- [36mwait[39m compiling /favicon.ico/route (client and server)...
+- [35mevent[39m compiled successfully in 109 ms (252 modules)
+- [36mwait[39m compiling /history/page (client and server)...
+- [35mevent[39m compiled client and server successfully in 239 ms (488 modules)
+- [36mwait[39m compiling /api/packing-slips/route (client and server)...
+- [35mevent[39m compiled successfully in 78 ms (264 modules)
+[31mprisma:error[39m 
+Invalid `prisma.packingSlip.findMany()` invocation:
+
+{
+  orderBy: {
+    createdAt: "desc"
+  },
+  include: {
+    vendor: true,
+    ~~~~~~
+    _count: {
+      select: {
+        lines: true
+      }
+    },
+?   lines?: true
+  }
+}
+
+Unknown field `vendor` for include statement on model `PackingSlip`. Available options are marked with ?.
+- [31merror[39m PrismaClientValidationError: 
+Invalid `prisma.packingSlip.findMany()` invocation:
+
+{
+  orderBy: {
+    createdAt: "desc"
+  },
+  include: {
+    vendor: true,
+    ~~~~~~
+    _count: {
+      select: {
+        lines: true
+      }
+    },
+?   lines?: true
+  }
+}
+
+Unknown field `vendor` for include statement on model `PackingSlip`. Available options are marked with ?.
+    at wn (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at $n.handleRequestError (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/@prisma/client/runtime/library.js:121:6958)
+    at $n.handleAndLogRequestError (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async GET (webpack-internal:///(rsc)/./src/app/api/packing-slips/route.ts:11:19)
+    at async eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:254:37) {
+  clientVersion: '5.22.0'
+}
+- [36mwait[39m compiling /admin/page (client and server)...
+- [35mevent[39m compiled client and server successfully in 153 ms (501 modules)
+- [36mwait[39m compiling /api/settings/route (client and server)...
+- [35mevent[39m compiled successfully in 55 ms (270 modules)
+- [31merror[39m TypeError: Cannot read properties of undefined (reading 'findFirst')
+    at GET (webpack-internal:///(rsc)/./src/app/api/settings/route.ts:11:92)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:254:43)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/trace/tracer.js:111:36)
+    at NoopContextManager.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:360:30)
+    at ContextAPI.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:30:58)
+    at NoopTracer.startActiveSpan (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:953:34)
+    at ProxyTracer.startActiveSpan (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:993:36)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/trace/tracer.js:100:107)
+    at NoopContextManager.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:360:30)
+    at ContextAPI.with (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@opentelemetry/api/index.js:30:58)
+    at NextTracerImpl.trace (webpack-internal:///(rsc)/./node_modules/next/dist/server/lib/trace/tracer.js:100:32)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:242:53)
+    at AsyncLocalStorage.run (node:async_hooks:322:14)
+    at Object.wrap (webpack-internal:///(rsc)/./node_modules/next/dist/server/async-storage/static-generation-async-storage-wrapper.js:42:24)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:196:97)
+    at AsyncLocalStorage.run (node:async_hooks:322:14)
+    at Object.wrap (webpack-internal:///(rsc)/./node_modules/next/dist/server/async-storage/request-async-storage-wrapper.js:82:24)
+    at eval (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:195:75)
+    at AsyncLocalStorage.run (node:async_hooks:322:14)
+    at AppRouteRouteModule.execute (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:192:56)
+    at AppRouteRouteModule.handle (webpack-internal:///(rsc)/./node_modules/next/dist/server/future/route-modules/app-route/module.js:315:41)
+    at doRender (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1091:56)
+    at cacheEntry.responseCache.get.incrementalCache.incrementalCache (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1300:34)
+    at /Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/response-cache/index.js:99:42
+    at ResponseCache.get (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/response-cache/index.js:149:11)
+    at DevServer.renderToResponseWithComponentsImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1219:53)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async DevServer.renderPageComponent (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1451:24)
+    at async DevServer.renderToResponseImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:1495:32)
+    at async DevServer.pipeImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:735:25)
+    at async DevServer.handleCatchallRenderRequest (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/next-server.js:703:13)
+    at async DevServer.handleRequestImpl (/Users/lijolawrance/work/analytixkraft/PackproSlip/node_modules/next/dist/server/base-server.js:647:17)
+- [36mwait[39m compiling /_error (client and server)...
+- [35mevent[39m compiled client and server successfully in 676 ms (563 modules)
+- [36mwait[39m compiling /api/settings/route (client and server)...
+- [35mevent[39m compiled successfully in 62 ms (270 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 138 ms (561 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 237 ms (561 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 137 ms (561 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled successfully in 153 ms (221 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 137 ms (577 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled successfully in 61 ms (221 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 192 ms (577 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 168 ms (563 modules)
+- [36mwait[39m compiling...
+- [35mevent[39m compiled client and server successfully in 94 ms (563 modules)

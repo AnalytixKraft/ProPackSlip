@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "darwin", "windows"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Item {
+  id        Int                @id @default(autoincrement())
+  name      String
+  sku       String             @unique
+  unit      String
+  notes     String?
+  isActive  Boolean            @default(true)
+  createdAt DateTime           @default(now())
+  lines     PackingSlipLine[]
+}
+
+model Vendor {
+  id          Int           @id @default(autoincrement())
+  name        String
+  gstNumber   String?
+  address     String
+  contactName String?
+  contactPhone String?
+  email       String?
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  slips       PackingSlip[]
+}
+
+model CompanySettings {
+  id          Int      @id @default(autoincrement())
+  companyName String
+  phone       String?
+  email       String?
+  gstNumber   String?
+  address     String
+  slipNumberFormat String?
+  theme       String?
+  inactivityTimeoutMinutes Int?
+  logoUrl     String?
+  logoDataUrl String?
+  loginUsername String?
+  loginPassword String?
+  updatedAt   DateTime @updatedAt
+}
+
+model PackingSlip {
+  id           Int                @id @default(autoincrement())
+  slipNo       String             @unique
+  customerName String
+  shipTo       String
+  poNumber     String?            @unique
+  boxNumber    String?
+  trackingNumber String?
+  slipDate     DateTime
+  createdAt    DateTime           @default(now())
+  vendorId     Int?
+  vendor       Vendor?            @relation(fields: [vendorId], references: [id])
+  lines        PackingSlipLine[]
+  revisions    PackingSlipRevision[]
+}
+
+model PackingSlipLine {
+  id     Int         @id @default(autoincrement())
+  slipId Int
+  itemId Int
+  qty    Float
+  boxName String?
+  boxNumber String?
+  slip   PackingSlip @relation(fields: [slipId], references: [id])
+  item   Item        @relation(fields: [itemId], references: [id])
+}
+
+model PackingSlipRevision {
+  id        Int         @id @default(autoincrement())
+  slipId    Int
+  version   Int
+  snapshot  String
+  createdAt DateTime    @default(now())
+  slip      PackingSlip @relation(fields: [slipId], references: [id], onDelete: Cascade)
+
+  @@index([slipId, version])
+}
+
+model CleanupLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+}
