@@ -351,27 +351,14 @@ export default function EditPackingSlipPage({ params }: PageProps) {
     }
   }
 
-  const handleGeneratePdf = async () => {
-    const pdfResponse = await fetch(`/api/packing-slips/${slipId}/pdf`)
-    if (!pdfResponse.ok) {
-      const data = await pdfResponse.json().catch(() => null)
-      const message =
-        data && typeof data.error === 'string'
-          ? data.error
-          : 'PDF generation failed.'
-      showToast(message)
-      return
+  const handlePrintSlip = () => {
+    const printUrl = `/print/packing-slip/${slipId}?autoprint=1`
+    const win = window.open(printUrl, '_blank', 'noopener,noreferrer')
+    if (!win) {
+      showToast('Popup blocked. Open print view from history.')
+    } else {
+      showToast('Print view opened in a new tab.')
     }
-    const blob = await pdfResponse.blob()
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `packing-slip-${slipNo || slipId}.pdf`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.URL.revokeObjectURL(url)
-    showToast('PDF downloaded.')
   }
 
   const handleGenerateLabels = async () => {
@@ -557,8 +544,8 @@ export default function EditPackingSlipPage({ params }: PageProps) {
           <button className="btn" type="button" disabled={saving} onClick={() => void handleSave()}>
             {saving ? 'Saving...' : 'Save'}
           </button>
-          <button className="btn" type="button" disabled={saving} onClick={() => void handleGeneratePdf()}>
-            {saving ? 'Generating...' : 'Generate PDF'}
+          <button className="btn" type="button" disabled={saving} onClick={() => handlePrintSlip()}>
+            {saving ? 'Opening...' : 'Print Slip'}
           </button>
           <button className="btn" type="button" disabled={saving} onClick={() => void handleGenerateLabels()}>
             {saving ? 'Generating...' : 'Generate Labels'}

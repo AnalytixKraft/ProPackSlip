@@ -2,7 +2,6 @@ const { app, BrowserWindow, shell, dialog, ipcMain } = require('electron')
 const fs = require('fs')
 const http = require('http')
 const path = require('path')
-const next = require('next')
 
 const DEFAULT_CONFIG = {
   appUrl: 'http://localhost:3000',
@@ -45,6 +44,39 @@ let logInfo = () => {}
 let logError = () => {}
 let logStream = null
 let isQuitRequested = false
+let nextFactory = null
+
+const formatError = (error) =>
+  error instanceof Error ? error.stack || error.message : String(error)
+
+const loadNext = (appRoot) => {
+  if (nextFactory) return nextFactory
+
+  const candidates = [
+    () => require('next'),
+    () => require(path.join(appRoot, 'node_modules', 'next')),
+    () => require(path.join(process.resourcesPath || '', 'app', 'node_modules', 'next')),
+  ]
+
+  const errors = []
+  for (const load of candidates) {
+    try {
+      const loaded = load()
+      if (loaded) {
+        nextFactory = loaded
+        return nextFactory
+      }
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  throw new Error(
+    `Unable to load Next.js runtime. Tried default and bundled paths. ${errors.join(
+      ' | '
+    )}`
+  )
+}
 
 const initLogger = () => {
   const logDir = path.join(app.getPath('userData'), 'logs')
@@ -91,10 +123,10 @@ const initLogger = () => {
   wrapWrite(process.stderr, 'STDERR')
 
   process.on('uncaughtException', (error) => {
-    logError('uncaughtException', error)
+    logError('uncaughtException', formatError(error))
   })
   process.on('unhandledRejection', (error) => {
-    logError('unhandledRejection', error)
+    logError('unhandledRejection', formatError(error))
   })
 
   return logFile
@@ -142,6 +174,7 @@ const startLocalServer = async (appRoot) => {
   const dbInfo = getDatabaseDebugInfo()
   logInfo('Database path', dbInfo.dbPath, 'size=', dbInfo.size)
 
+  const next = loadNext(appRoot)
   const nextApp = next({ dev: false, dir: appRoot })
   try {
     await nextApp.prepare()
@@ -222,6 +255,7 @@ const createWindow = async () => {
   const appRoot = app.getAppPath()
   let appUrl = null
   const isWindows = process.platform === 'win32'
+  const windowIconPath = path.join(appRoot, 'public', 'Logo.png')
 
   if (!app.isPackaged) {
     appUrl = process.env.DESKTOP_APP_URL || config.appUrl
@@ -251,6 +285,7 @@ const createWindow = async () => {
     minHeight: 640,
     autoHideMenuBar: true,
     backgroundColor: '#f8f4ee',
+    icon: fs.existsSync(windowIconPath) ? windowIconPath : undefined,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -334,11 +369,20 @@ app.whenReady().then(() => {
 
   ipcMain.on('app:quit', requestQuit)
 
-  createWindow()
+  createWindow().catch((error) => {
+    const message = formatError(error)
+    logError('createWindow failed', message)
+    dialog.showErrorBox('Unable to start PackPro Slip', message)
+    app.quit()
+  })
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
+      createWindow().catch((error) => {
+        const message = formatError(error)
+        logError('createWindow failed on activate', message)
+        dialog.showErrorBox('Unable to reopen PackPro Slip', message)
+      })
     }
   })
 })

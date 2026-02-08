@@ -68,7 +68,6 @@ export default function NewPackingSlipPage() {
   const [lines, setLines] = useState<SlipLine[]>([createLine()])
   const [working, setWorking] = useState(false)
   const [savedSlipId, setSavedSlipId] = useState<number | null>(null)
-  const [savedSlipNo, setSavedSlipNo] = useState<string | null>(null)
   const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null)
   const [duplicateSlipId, setDuplicateSlipId] = useState<number | null>(null)
   const [duplicateSlipNo, setDuplicateSlipNo] = useState<string | null>(null)
@@ -120,7 +119,6 @@ export default function NewPackingSlipPage() {
     })
     if (currentSnapshot !== savedSnapshot) {
       setSavedSlipId(null)
-      setSavedSlipNo(null)
       setSavedSnapshot(null)
     }
   }, [customerName, shipTo, poNumber, vendorId, slipDate, lines, savedSlipId, savedSnapshot])
@@ -347,37 +345,23 @@ export default function NewPackingSlipPage() {
         })),
       })
       setSavedSlipId(slip.id)
-      setSavedSlipNo(slip.slipNo ?? null)
       setSavedSnapshot(snapshot)
       showToast('Slip saved.')
     }
   }
 
-  const handleGeneratePdf = async () => {
+  const handlePrintSlip = () => {
     if (!savedSlipId) {
-      showToast('Save the slip before generating a PDF.')
+      showToast('Save the slip before printing.')
       return
     }
-    const pdfResponse = await fetch(`/api/packing-slips/${savedSlipId}/pdf`)
-    if (!pdfResponse.ok) {
-      const data = await pdfResponse.json().catch(() => null)
-      const message =
-        data && typeof data.error === 'string'
-          ? data.error
-          : 'PDF generation failed.'
-      showToast(message)
-      return
+    const printUrl = `/print/packing-slip/${savedSlipId}?autoprint=1`
+    const win = window.open(printUrl, '_blank', 'noopener,noreferrer')
+    if (!win) {
+      showToast('Popup blocked. Open print view from history.')
+    } else {
+      showToast('Print view opened in a new tab.')
     }
-    const blob = await pdfResponse.blob()
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `packing-slip-${savedSlipNo || savedSlipId}.pdf`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.URL.revokeObjectURL(url)
-    showToast('PDF downloaded.')
   }
 
   const handleGenerateLabels = async () => {
@@ -616,9 +600,9 @@ export default function NewPackingSlipPage() {
                 className="btn"
                 type="button"
                 disabled={working || !savedSlipId}
-                onClick={() => void handleGeneratePdf()}
+                onClick={() => handlePrintSlip()}
               >
-                {working ? 'Generating...' : 'Generate PDF'}
+                {working ? 'Opening...' : 'Print Slip'}
               </button>
               <button
                 className="btn"

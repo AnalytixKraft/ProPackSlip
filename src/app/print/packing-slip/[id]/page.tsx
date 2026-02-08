@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import PrintMode from '@/components/print-mode'
+import PrintAuto from '@/components/print-auto'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,7 +30,7 @@ export default async function PrintPackingSlipPage({ params }: PageProps) {
   }
 
   const settings = await prisma.companySettings.findFirst()
-  const logoSrc = settings?.logoDataUrl || settings?.logoUrl
+  const logoSrc = settings?.logoDataUrl || settings?.logoUrl || '/Logo.png'
   const dateLabel = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: '2-digit',
@@ -40,17 +41,16 @@ export default async function PrintPackingSlipPage({ params }: PageProps) {
   return (
     <>
       <PrintMode />
+      <PrintAuto />
       <div className="print-root sample-print">
       <div className="print-header-row">
         <div className="print-company">
-          {logoSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              className="print-logo"
-              src={logoSrc}
-              alt={settings?.companyName || 'Company logo'}
-            />
-          ) : null}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="print-logo"
+            src={logoSrc}
+            alt={settings?.companyName || 'Company logo'}
+          />
           <div>
             <div className="print-company-name">
               {settings?.companyName || 'PackPro Slip'}
@@ -136,8 +136,8 @@ export default async function PrintPackingSlipPage({ params }: PageProps) {
       </div>
 
       <div className="print-footer no-print">
-        <a className="btn" href={`/api/packing-slips/${slip.id}/pdf`}>
-          Generate PDF
+        <a className="btn" href={`/print/packing-slip/${slip.id}?autoprint=1`}>
+          Print
         </a>
         <a
           className="btn secondary"

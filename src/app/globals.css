@@ -151,6 +151,14 @@ main {
   margin: 0 auto;
 }
 
+.app-footer {
+  padding: 8px 0 20px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
 .top-bar {
   display: flex;
   align-items: center;
@@ -970,6 +978,10 @@ textarea {
 
 .print-mode .top-bar,
 .print-mode .nav {
+  display: none !important;
+}
+
+.print-mode .app-footer {
   display: none !important;
 }
 

@@ -17,7 +17,7 @@ export default async function HomePage() {
   ])
 
   const companyName = settings?.companyName || 'PackPro Slip'
-  const logoSrc = settings?.logoDataUrl || settings?.logoUrl
+  const logoSrc = settings?.logoDataUrl || settings?.logoUrl || '/Logo.png'
 
   return (
     <>
@@ -27,14 +27,12 @@ export default async function HomePage() {
           Company details for your slips and labels.
         </p>
         <div className="company-card">
-          {logoSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              className="company-logo"
-              src={logoSrc}
-              alt={settings?.companyName || 'Company logo'}
-            />
-          ) : null}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="company-logo"
+            src={logoSrc}
+            alt={settings?.companyName || 'Company logo'}
+          />
           <div>
             <div className="company-name">{companyName}</div>
             {settings?.address ? (
@@ -107,9 +105,11 @@ export default async function HomePage() {
                       </Link>
                         <a
                           className="btn ghost"
-                          href={`/api/packing-slips/${slip.id}/pdf`}
+                          href={`/print/packing-slip/${slip.id}?autoprint=1`}
+                          target="_blank"
+                          rel="noreferrer"
                         >
-                          PDF
+                          Print
                         </a>
                       </div>
                     </td>

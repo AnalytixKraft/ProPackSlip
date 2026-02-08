@@ -30,6 +30,7 @@
       "desktop/**/*",
       ".next/**/*",
       "public/**/*",
+      "node_modules/**/*",
       "node_modules/.prisma/**/*",
       "node_modules/@prisma/client/.prisma/**/*",
       "next.config.js",
@@ -42,6 +43,7 @@
       "artifactName": "PackPro Slip-${version}-mac-${arch}.${ext}"
     },
     "win": {
+      "icon": "public/Logo.png",
       "target": [
         "nsis"
       ]
@@ -49,7 +51,10 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "PackPro Slip"
     }
   },
   "dependencies": {

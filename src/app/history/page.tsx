@@ -199,9 +199,11 @@ export default function HistoryPage() {
                         </Link>
                         <a
                           className="btn ghost"
-                          href={`/api/packing-slips/${slip.id}/pdf`}
+                          href={`/print/packing-slip/${slip.id}?autoprint=1`}
+                          target="_blank"
+                          rel="noreferrer"
                         >
-                          PDF
+                          Print
                         </a>
                       </div>
                     </td>

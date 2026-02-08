@@ -37,7 +37,7 @@ export default async function RootLayout({
   const companyMeta = settings?.gstNumber?.trim()
     ? `GST: ${settings.gstNumber}`
     : 'GST required'
-  const logoSrc = settings?.logoDataUrl || settings?.logoUrl || null
+  const logoSrc = settings?.logoDataUrl || settings?.logoUrl || '/Logo.png'
   const theme = settings?.theme || 'sunset'
 
   return (
@@ -50,10 +50,8 @@ export default async function RootLayout({
         <div className="app-shell">
           <header className="top-bar">
             <Link className="brand" href="/">
-              {logoSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img className="brand-logo" src={logoSrc} alt={`${companyName} logo`} />
-              ) : null}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="brand-logo" src={logoSrc} alt={`${companyName} logo`} />
               <span className="brand-copy">
                 <span className="brand-title">{companyName}</span>
                 <span className="brand-meta">{companyMeta}</span>
@@ -66,6 +64,9 @@ export default async function RootLayout({
             </div>
           </header>
           <main>{children}</main>
+          <footer className="app-footer no-print">
+            Powered by AnalytixKraft 2026. All rights reserved.
+          </footer>
         </div>
       </body>
     </html>
