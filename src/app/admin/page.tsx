@@ -112,8 +112,8 @@ export default function AdminPage() {
   }
 
   const handleSave = async () => {
-    if (!form.companyName.trim() || !form.address.trim()) {
-      showToast('Company name and address are required.')
+    if (!form.companyName.trim() || !form.address.trim() || !form.phone.trim()) {
+      showToast('Company name, address, and phone number are required.')
       return
     }
 
@@ -276,10 +276,11 @@ export default function AdminPage() {
               />
             </div>
             <div>
-              <label htmlFor="company-phone">Phone</label>
+              <label htmlFor="company-phone">Phone *</label>
               <input
                 id="company-phone"
                 type="tel"
+                required
                 value={form.phone}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, phone: event.target.value }))

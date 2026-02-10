@@ -5,6 +5,7 @@ declare global {
     packpro?: {
       isDesktop?: boolean
       quit?: () => void
+      print?: () => Promise<boolean>
     }
   }
 }

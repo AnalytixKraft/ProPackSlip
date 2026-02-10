@@ -368,6 +368,25 @@ app.whenReady().then(() => {
   }
 
   ipcMain.on('app:quit', requestQuit)
+  ipcMain.handle('app:print', async () => {
+    const targetWindow = BrowserWindow.getFocusedWindow() || mainWindow
+    if (!targetWindow) return false
+
+    return new Promise((resolve) => {
+      targetWindow.webContents.print(
+        {
+          silent: false,
+          printBackground: false,
+        },
+        (success, failureReason) => {
+          if (!success && failureReason) {
+            logError('Print failed', failureReason)
+          }
+          resolve(success)
+        }
+      )
+    })
+  })
 
   createWindow().catch((error) => {
     const message = formatError(error)

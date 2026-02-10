@@ -57,9 +57,12 @@ export async function POST(request: Request) {
         ? body.logoDataUrl.trim()
         : null
 
-    if (!companyName || !address || !gstNumber) {
+    if (!companyName || !address || !phone || !gstNumber) {
       return NextResponse.json(
-        { error: 'Company name, address, and GST number are required.' },
+        {
+          error:
+            'Company name, address, phone number, and GST number are required.',
+        },
         { status: 400 }
       )
     }

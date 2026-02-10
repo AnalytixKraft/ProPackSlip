@@ -72,6 +72,14 @@ export default async function SlipLabelsPage({ params }: PageProps) {
   return (
     <>
       <PrintMode />
+      <style>{`
+        @media print {
+          @page {
+            size: 4in 6in;
+            margin: 0;
+          }
+        }
+      `}</style>
       <div className="label-sheet">
         <div className="label-toolbar no-print">
           <div>

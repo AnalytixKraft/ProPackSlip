@@ -11,13 +11,18 @@ const TIMEOUT_KEY = 'packpro-timeout-min'
 const BOOT_KEY = 'packpro-server-boot'
 
 const publicPaths = new Set<string>(['/login'])
+const publicPrefixes = ['/print/', '/shipping-labels/slip/']
 
 export default function AuthGuard() {
   const pathname = usePathname()
   const router = useRouter()
 
   useEffect(() => {
-    if (!pathname || publicPaths.has(pathname)) {
+    if (
+      !pathname ||
+      publicPaths.has(pathname) ||
+      publicPrefixes.some((prefix) => pathname.startsWith(prefix))
+    ) {
       return
     }
     let interval: ReturnType<typeof setInterval> | null = null
