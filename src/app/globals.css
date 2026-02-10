@@ -791,7 +791,7 @@ textarea {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .print-company {
@@ -823,6 +823,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  text-align: left;
 }
 
 .print-company-name {
@@ -833,7 +834,7 @@ textarea {
 }
 
 .print-company-detail {
-  font-size: 0.8rem;
+  font-size: 0.79rem;
   line-height: 1.35;
   color: #666;
   overflow-wrap: anywhere;
@@ -867,33 +868,32 @@ textarea {
 .print-meta-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  align-items: end;
-  padding-bottom: 10px;
+  align-items: center;
+  padding-bottom: 8px;
   border-bottom: 1px solid #d9d9d9;
 }
 
-.print-meta-cell {
+.print-meta-inline {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 6px;
 }
 
-.print-meta-cell.align-right {
+.print-meta-inline.align-right {
   text-align: right;
-  align-items: flex-end;
+  justify-content: flex-end;
 }
 
 .print-meta-label {
   color: #777;
   font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-weight: 600;
 }
 
 .print-meta-value {
   color: #5f5f5f;
-  font-size: 0.86rem;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
@@ -951,14 +951,19 @@ textarea {
   background: #f7f7f7;
   color: #242424;
   font-weight: 700;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border-bottom: 1px solid #c8c8c8;
+  white-space: nowrap;
 }
 
 .print-table tbody tr:nth-child(even) {
   background: #fbfbfb;
+}
+
+.print-table tr {
+  page-break-inside: avoid;
 }
 
 .align-right {
@@ -979,16 +984,20 @@ textarea {
 }
 
 .print-footer {
-  margin-top: 16px;
-  padding-top: 8px;
-  border-top: 1px solid #dedede;
+  margin-top: 12px;
+  padding-top: 6px;
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  font-size: 0.65rem;
-  color: #8a8a8a;
+  justify-content: flex-end;
+  font-size: 0.62rem;
+  color: #8f8f8f;
   letter-spacing: 0.01em;
+  text-align: right;
+}
+
+.print-footer-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .print-toolbar {
