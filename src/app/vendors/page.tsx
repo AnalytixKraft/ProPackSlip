@@ -31,6 +31,8 @@ const emptyForm = {
 export default function VendorsPage() {
   const [vendors, setVendors] = useState<Vendor[]>([])
   const [query, setQuery] = useState('')
+  const [importFile, setImportFile] = useState<File | null>(null)
+  const [importing, setImporting] = useState(false)
   const [form, setForm] = useState({ ...emptyForm })
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
@@ -160,6 +162,52 @@ export default function VendorsPage() {
     }
   }
 
+  const handleImport = async () => {
+    if (!importFile) {
+      showToast('Select a CSV or Excel file to import.')
+      return
+    }
+
+    setImporting(true)
+    try {
+      const payload = new FormData()
+      payload.append('file', importFile)
+
+      const response = await fetch('/api/vendors/import', {
+        method: 'POST',
+        body: payload,
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to import customers.')
+      }
+
+      const reloadResponse = await fetch(
+        `/api/vendors?query=${encodeURIComponent(query)}&includeInactive=1`
+      )
+      if (reloadResponse.ok) {
+        const rows: Vendor[] = await reloadResponse.json()
+        setVendors(rows)
+      }
+
+      const summary = `Imported customers: ${data.created ?? 0} created, ${data.updated ?? 0} updated, ${data.skipped ?? 0} skipped, ${data.failed ?? 0} failed.`
+      showToast(summary)
+      if (Array.isArray(data.errors) && data.errors.length > 0) {
+        const first = data.errors[0]
+        if (first && typeof first.message === 'string') {
+          showToast(`Row ${first.row}: ${first.message}`)
+        }
+      }
+      setImportFile(null)
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to import customers.'
+      showToast(message)
+    } finally {
+      setImporting(false)
+    }
+  }
+
   return (
     <>
       <section className="page-card">
@@ -270,6 +318,30 @@ export default function VendorsPage() {
               placeholder="Search customers"
             />
           </div>
+          <div>
+            <label htmlFor="vendor-import-file">Bulk Upload (CSV/XLSX)</label>
+            <input
+              id="vendor-import-file"
+              type="file"
+              accept=".csv,.xlsx,.xls"
+              onChange={(event) =>
+                setImportFile(event.target.files?.[0] ?? null)
+              }
+            />
+            <p className="helper">
+              Columns: <code>name</code> and <code>address</code> required; optional <code>gst</code>, <code>email</code>, <code>contactName</code>, <code>phone</code>.
+            </p>
+          </div>
+        </div>
+        <div className="actions">
+          <button
+            className="btn secondary"
+            type="button"
+            disabled={importing}
+            onClick={() => void handleImport()}
+          >
+            {importing ? 'Importing...' : 'Import Customers'}
+          </button>
         </div>
         {vendors.length === 0 ? (
           <p className="helper">No customers found.</p>

@@ -26,6 +26,8 @@ export default function NewItemPage() {
   const [form, setForm] = useState<ItemForm>(emptyForm)
   const [items, setItems] = useState<ItemRow[]>([])
   const [query, setQuery] = useState('')
+  const [importFile, setImportFile] = useState<File | null>(null)
+  const [importing, setImporting] = useState(false)
   const [saving, setSaving] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editForm, setEditForm] = useState<ItemForm>(emptyForm)
@@ -185,6 +187,45 @@ export default function NewItemPage() {
     }
   }
 
+  const handleImport = async () => {
+    if (!importFile) {
+      showToast('Select a CSV or Excel file to import.')
+      return
+    }
+
+    setImporting(true)
+    try {
+      const payload = new FormData()
+      payload.append('file', importFile)
+
+      const response = await fetch('/api/items/import', {
+        method: 'POST',
+        body: payload,
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to import items.')
+      }
+
+      const summary = `Imported items: ${data.created ?? 0} created, ${data.updated ?? 0} updated, ${data.skipped ?? 0} skipped, ${data.failed ?? 0} failed.`
+      showToast(summary)
+      if (Array.isArray(data.errors) && data.errors.length > 0) {
+        const first = data.errors[0]
+        if (first && typeof first.message === 'string') {
+          showToast(`Row ${first.row}: ${first.message}`)
+        }
+      }
+      setImportFile(null)
+      await loadItems()
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to import items.'
+      showToast(message)
+    } finally {
+      setImporting(false)
+    }
+  }
+
   return (
     <>
       <section className="page-card">
@@ -226,6 +267,30 @@ export default function NewItemPage() {
                 placeholder="Search items"
               />
             </div>
+            <div>
+              <label htmlFor="item-import-file">Bulk Upload (CSV/XLSX)</label>
+              <input
+                id="item-import-file"
+                type="file"
+                accept=".csv,.xlsx,.xls"
+                onChange={(event) =>
+                  setImportFile(event.target.files?.[0] ?? null)
+                }
+              />
+              <p className="helper">
+                Columns: <code>name</code> (required), <code>unit</code>, <code>sku</code>, <code>notes</code>.
+              </p>
+            </div>
+          </div>
+          <div className="actions">
+            <button
+              className="btn secondary"
+              type="button"
+              disabled={importing}
+              onClick={() => void handleImport()}
+            >
+              {importing ? 'Importing...' : 'Import Items'}
+            </button>
           </div>
           {items.length === 0 ? (
             <p className="helper">No items found.</p>
