@@ -46,6 +46,12 @@ type SlipResponse = {
   }>
 }
 
+type QuickItemForm = {
+  name: string
+  unit: string
+  notes: string
+}
+
 const createLine = (): SlipLine => ({
   key: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
   itemId: null,
@@ -53,6 +59,12 @@ const createLine = (): SlipLine => ({
   boxName: '',
   boxNumber: '',
 })
+
+const emptyQuickItem: QuickItemForm = {
+  name: '',
+  unit: 'pcs',
+  notes: '',
+}
 
 type PageProps = {
   params: { id: string }
@@ -72,6 +84,10 @@ export default function EditPackingSlipPage({ params }: PageProps) {
   const [poNumber, setPoNumber] = useState('')
   const [items, setItems] = useState<ItemOption[]>([])
   const [itemCache, setItemCache] = useState<Record<number, ItemOption>>({})
+  const [quickItemForm, setQuickItemForm] = useState<QuickItemForm>(emptyQuickItem)
+  const [showQuickItem, setShowQuickItem] = useState(false)
+  const [creatingItem, setCreatingItem] = useState(false)
+  const [quickItemLineKey, setQuickItemLineKey] = useState<string | null>(null)
   const [lines, setLines] = useState<SlipLine[]>([createLine()])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -216,15 +232,11 @@ export default function EditPackingSlipPage({ params }: PageProps) {
   const selectOptions = useMemo(() => {
     const map = new Map<number, ItemOption>()
     items.forEach((item) => map.set(item.id, item))
-    lines.forEach((line) => {
-      if (line.itemId && itemCache[line.itemId]) {
-        map.set(line.itemId, itemCache[line.itemId])
-      }
-    })
+    Object.values(itemCache).forEach((item) => map.set(item.id, item))
     return Array.from(map.values()).sort((a, b) =>
       a.name.localeCompare(b.name)
     )
-  }, [items, lines, itemCache])
+  }, [items, itemCache])
 
   const vendorOptions = useMemo(() => {
     const map = new Map<number, VendorOption>()
@@ -247,6 +259,59 @@ export default function EditPackingSlipPage({ params }: PageProps) {
     setLines((prev) =>
       prev.length > 1 ? prev.filter((line) => line.key !== key) : prev
     )
+  }
+
+  const openQuickItem = (lineKey?: string) => {
+    setShowQuickItem(true)
+    setQuickItemLineKey(lineKey ?? null)
+  }
+
+  const closeQuickItem = () => {
+    if (creatingItem) return
+    setShowQuickItem(false)
+    setQuickItemLineKey(null)
+    setQuickItemForm(emptyQuickItem)
+  }
+
+  const handleCreateQuickItem = async () => {
+    if (!quickItemForm.name.trim()) {
+      showToast('Item name is required.')
+      return
+    }
+    setCreatingItem(true)
+    try {
+      const response = await fetch('/api/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: quickItemForm.name,
+          unit: quickItemForm.unit,
+          notes: quickItemForm.notes,
+        }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to save item.')
+      }
+      const saved = data as ItemOption
+      setItems((prev) =>
+        prev.some((item) => item.id === saved.id) ? prev : [...prev, saved]
+      )
+      setItemCache((prev) => ({ ...prev, [saved.id]: saved }))
+      if (quickItemLineKey) {
+        updateLine(quickItemLineKey, { itemId: saved.id })
+      }
+      setQuickItemForm(emptyQuickItem)
+      setQuickItemLineKey(null)
+      setShowQuickItem(false)
+      showToast(`Item ${saved.name} created.`)
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to save item.'
+      showToast(message)
+    } finally {
+      setCreatingItem(false)
+    }
   }
 
   const handleVendorSelect = (value: string) => {
@@ -290,13 +355,11 @@ export default function EditPackingSlipPage({ params }: PageProps) {
       return
     }
 
-    const missingQtyOrBox = lines.some(
-      (line) =>
-        line.itemId &&
-        (Number(line.qty) <= 0 || !line.boxNumber.trim())
+    const missingQty = lines.some(
+      (line) => line.itemId && Number(line.qty) <= 0
     )
-    if (missingQtyOrBox) {
-      showToast('Each line needs qty and a box number.')
+    if (missingQty) {
+      showToast('Each line needs qty.')
       return
     }
 
@@ -307,7 +370,7 @@ export default function EditPackingSlipPage({ params }: PageProps) {
         boxName: line.boxName,
         boxNumber: line.boxNumber,
       }))
-      .filter((line) => line.itemId && line.qty > 0 && line.boxNumber.trim())
+      .filter((line) => line.itemId && line.qty > 0)
 
     if (cleanedLines.length === 0) {
       showToast('Add at least one line item.')
@@ -473,15 +536,19 @@ export default function EditPackingSlipPage({ params }: PageProps) {
                   <td>
                     <select
                       value={line.itemId ?? ''}
-                      onChange={(event) =>
+                      onChange={(event) => {
+                        const value = event.target.value
+                        if (value === '__new__') {
+                          openQuickItem(line.key)
+                          return
+                        }
                         updateLine(line.key, {
-                          itemId: event.target.value
-                            ? Number(event.target.value)
-                            : null,
+                          itemId: value ? Number(value) : null,
                         })
-                      }
+                      }}
                     >
                       <option value="">Select item</option>
+                      <option value="__new__">+ Create item...</option>
                       {selectOptions.map((option) => (
                         <option key={option.id} value={option.id}>
                           {option.name}
@@ -505,7 +572,6 @@ export default function EditPackingSlipPage({ params }: PageProps) {
                         updateLine(line.key, { boxNumber: event.target.value })
                       }
                       placeholder="Box no"
-                      required
                     />
                   </td>
                   <td>{item?.unit ?? '-'}</td>
@@ -541,6 +607,9 @@ export default function EditPackingSlipPage({ params }: PageProps) {
           >
             Add Line
           </button>
+          <button className="btn secondary" type="button" onClick={() => openQuickItem()}>
+            Quick Add Item
+          </button>
           <button className="btn" type="button" disabled={saving} onClick={() => void handleSave()}>
             {saving ? 'Saving...' : 'Save'}
           </button>
@@ -563,6 +632,77 @@ export default function EditPackingSlipPage({ params }: PageProps) {
             >
               Edit Existing Slip
             </button>
+          </div>
+        ) : null}
+        {showQuickItem ? (
+          <div className="inline-alert">
+            <div style={{ width: '100%' }}>
+              <h3 className="section-title" style={{ fontSize: '1.05rem', marginBottom: '8px' }}>
+                Create Item
+              </h3>
+              <div className="form-grid">
+                <div>
+                  <label htmlFor="quick-item-name">Item Name</label>
+                  <input
+                    id="quick-item-name"
+                    value={quickItemForm.name}
+                    onChange={(event) =>
+                      setQuickItemForm((prev) => ({
+                        ...prev,
+                        name: event.target.value,
+                      }))
+                    }
+                    placeholder="Item name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="quick-item-unit">Unit</label>
+                  <input
+                    id="quick-item-unit"
+                    value={quickItemForm.unit}
+                    onChange={(event) =>
+                      setQuickItemForm((prev) => ({
+                        ...prev,
+                        unit: event.target.value,
+                      }))
+                    }
+                    placeholder="pcs, kg, box"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="quick-item-notes">Notes</label>
+                  <input
+                    id="quick-item-notes"
+                    value={quickItemForm.notes}
+                    onChange={(event) =>
+                      setQuickItemForm((prev) => ({
+                        ...prev,
+                        notes: event.target.value,
+                      }))
+                    }
+                    placeholder="Optional"
+                  />
+                </div>
+              </div>
+              <div className="actions">
+                <button
+                  className="btn"
+                  type="button"
+                  disabled={creatingItem}
+                  onClick={() => void handleCreateQuickItem()}
+                >
+                  {creatingItem ? 'Saving...' : 'Save Item'}
+                </button>
+                <button
+                  className="btn ghost"
+                  type="button"
+                  disabled={creatingItem}
+                  onClick={closeQuickItem}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         ) : null}
       </section>
