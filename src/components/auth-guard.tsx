@@ -49,7 +49,7 @@ export default function AuthGuard() {
         router.replace('/login')
         return
       }
-      const timeoutMinutes = Number(localStorage.getItem(TIMEOUT_KEY)) || 30
+      const timeoutMinutes = Number(localStorage.getItem(TIMEOUT_KEY)) || 300
       const lastActivity =
         Number(localStorage.getItem(ACTIVITY_KEY)) || sessionStart
       const now = Date.now()

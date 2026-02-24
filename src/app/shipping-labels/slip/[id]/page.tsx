@@ -63,7 +63,7 @@ export default async function SlipLabelsPage({ params }: PageProps) {
         <PrintMode />
         <section className="page-card">
           <h1 className="section-title">Shipping Labels</h1>
-          <p className="helper">No box numbers found for this slip.</p>
+          <div className="empty-state">No box numbers found for this slip.</div>
         </section>
       </>
     )
@@ -85,7 +85,7 @@ export default async function SlipLabelsPage({ params }: PageProps) {
           <div>
             <strong>Labels for Slip {slip.slipNo}</strong>
           </div>
-          <div className="actions" style={{ marginTop: 0 }}>
+          <div className="actions inline-actions">
             <PrintButton label="Print Labels" />
           </div>
         </div>

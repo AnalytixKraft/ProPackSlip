@@ -61,7 +61,7 @@ export default async function HomePage() {
           Quick access to the most recent slips.
         </p>
         {recentSlips.length === 0 ? (
-          <p className="helper">No slips yet. Create your first one now.</p>
+          <div className="empty-state">No slips yet. Create your first one now.</div>
         ) : (
           <table className="table">
             <thead>
@@ -87,8 +87,8 @@ export default async function HomePage() {
                     <td>{dateLabel}</td>
                     <td>{slip.customerName}</td>
                     <td>{slip._count.lines}</td>
-                    <td>
-                      <div className="actions" style={{ marginTop: 0 }}>
+                    <td className="table-action-cell">
+                      <div className="actions inline-actions">
                       <a
                         className="btn secondary"
                         href={`/print/packing-slip/${slip.id}`}

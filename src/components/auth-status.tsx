@@ -52,7 +52,7 @@ export default function AuthStatus() {
   return (
     <div className="auth-status">
       <div className="auth-row">
-        <span>Welcome {user}</span>
+        <span className="auth-greeting">Welcome {user}</span>
         <button
           className="icon-button"
           type="button"
@@ -82,9 +82,15 @@ export default function AuthStatus() {
           )}
         </button>
       </div>
-      <button className="link-button" type="button" onClick={handleLogout}>
-        Logout
-      </button>
+      <div className="auth-actions">
+        <button
+          className="link-button auth-logout"
+          type="button"
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
+      </div>
     </div>
   )
 }

@@ -16,6 +16,17 @@ type ItemRow = {
   isActive: boolean
 }
 
+type ImportSummary = {
+  total: number
+  duplicateNameRowsRemoved: number
+  rowsAfterDuplicateRemoval: number
+  loaded: number
+  created: number
+  updated: number
+  skipped: number
+  failed: number
+}
+
 const emptyForm: ItemForm = {
   name: '',
   unit: 'pcs',
@@ -31,6 +42,7 @@ export default function NewItemPage() {
   const [saving, setSaving] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editForm, setEditForm] = useState<ItemForm>(emptyForm)
+  const [importSummary, setImportSummary] = useState<ImportSummary | null>(null)
   const [activeTab, setActiveTab] = useState<'items' | 'add'>('items')
   const [toast, setToast] = useState<string | null>(null)
 
@@ -194,6 +206,7 @@ export default function NewItemPage() {
     }
 
     setImporting(true)
+    setImportSummary(null)
     try {
       const payload = new FormData()
       payload.append('file', importFile)
@@ -207,7 +220,18 @@ export default function NewItemPage() {
         throw new Error(data.error || 'Unable to import items.')
       }
 
-      const summary = `Imported items: ${data.created ?? 0} created, ${data.updated ?? 0} updated, ${data.skipped ?? 0} skipped, ${data.failed ?? 0} failed.`
+      setImportSummary({
+        total: Number(data.total) || 0,
+        duplicateNameRowsRemoved: Number(data.duplicateNameRowsRemoved) || 0,
+        rowsAfterDuplicateRemoval: Number(data.rowsAfterDuplicateRemoval) || 0,
+        loaded: Number(data.loaded) || 0,
+        created: Number(data.created) || 0,
+        updated: Number(data.updated) || 0,
+        skipped: Number(data.skipped) || 0,
+        failed: Number(data.failed) || 0,
+      })
+
+      const summary = `Imported items: ${data.loaded ?? 0} loaded (${data.created ?? 0} created, ${data.updated ?? 0} updated). Duplicate names removed: ${data.duplicateNameRowsRemoved ?? 0}.`
       showToast(summary)
       if (Array.isArray(data.errors) && data.errors.length > 0) {
         const first = data.errors[0]
@@ -257,7 +281,7 @@ export default function NewItemPage() {
           <p className="section-subtitle">
             Toggle active status or delete items you no longer use.
           </p>
-          <div className="form-grid full">
+          <div className="table-toolbar">
             <div>
               <label htmlFor="item-search">Search</label>
               <input
@@ -273,27 +297,38 @@ export default function NewItemPage() {
                 id="item-import-file"
                 type="file"
                 accept=".csv,.xlsx,.xls"
-                onChange={(event) =>
+                onChange={(event) => {
                   setImportFile(event.target.files?.[0] ?? null)
-                }
+                  setImportSummary(null)
+                }}
               />
               <p className="helper">
                 Columns: <code>name</code> (required), <code>unit</code>, <code>sku</code>, <code>notes</code>.
               </p>
+              <p className="helper">
+                Duplicate product names in bulk upload keep only the latest row.
+              </p>
+            </div>
+            <div className="toolbar-actions">
+              <button
+                className="btn secondary"
+                type="button"
+                disabled={importing}
+                onClick={() => void handleImport()}
+              >
+                {importing ? 'Importing...' : 'Import Items'}
+              </button>
             </div>
           </div>
-          <div className="actions">
-            <button
-              className="btn secondary"
-              type="button"
-              disabled={importing}
-              onClick={() => void handleImport()}
-            >
-              {importing ? 'Importing...' : 'Import Items'}
-            </button>
-          </div>
+          {importSummary ? (
+            <div className="inline-alert">
+              <span>
+                Total rows: {importSummary.total}. Duplicate names found: {importSummary.duplicateNameRowsRemoved}. After removing duplicates, {importSummary.rowsAfterDuplicateRemoval} rows were considered for load. Loaded: {importSummary.loaded} ({importSummary.created} created, {importSummary.updated} updated). Skipped: {importSummary.skipped}. Failed: {importSummary.failed}.
+              </span>
+            </div>
+          ) : null}
           {items.length === 0 ? (
-            <p className="helper">No items found.</p>
+            <div className="empty-state">No items found.</div>
           ) : (
             <table className="table">
               <thead>

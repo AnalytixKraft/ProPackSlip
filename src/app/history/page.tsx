@@ -153,9 +153,14 @@ export default function HistoryPage() {
 
       {activeTab === 'recent' ? (
         loading ? (
-          <p className="helper">Loading...</p>
+          <div className="skeleton-stack">
+            <div className="skeleton-line lg" />
+            <div className="skeleton-line md" />
+            <div className="skeleton-line" />
+            <div className="skeleton-line sm" />
+          </div>
         ) : slips.length === 0 ? (
-          <p className="helper">No packing slips yet.</p>
+          <div className="empty-state">No packing slips yet.</div>
         ) : (
           <table className="table">
             <thead>
@@ -181,8 +186,8 @@ export default function HistoryPage() {
                     <td>{dateLabel}</td>
                     <td>{slip.customerName}</td>
                     <td>{slip._count.lines}</td>
-                    <td>
-                      <div className="actions" style={{ marginTop: 0 }}>
+                    <td className="table-action-cell">
+                      <div className="actions inline-actions">
                         <a
                           className="btn secondary"
                           href={`/print/packing-slip/${slip.id}`}
@@ -215,9 +220,13 @@ export default function HistoryPage() {
         )
       ) : activeTab === 'versions' ? (
         loadingRevisions ? (
-          <p className="helper">Loading...</p>
+          <div className="skeleton-stack">
+            <div className="skeleton-line lg" />
+            <div className="skeleton-line md" />
+            <div className="skeleton-line" />
+          </div>
         ) : revisions.length === 0 ? (
-          <p className="helper">No version history yet.</p>
+          <div className="empty-state">No version history yet.</div>
         ) : (
           <table className="table">
             <thead>
@@ -263,8 +272,8 @@ export default function HistoryPage() {
                     <td>{dateLabel}</td>
                     <td>{snapshot.customerName || '-'}</td>
                     <td>{snapshot.lines?.length ?? 0}</td>
-                    <td>
-                      <div className="actions" style={{ marginTop: 0 }}>
+                    <td className="table-action-cell">
+                      <div className="actions inline-actions">
                         <a
                           className="btn secondary"
                           href={`/print/packing-slip/${revision.slipId}`}
@@ -288,7 +297,12 @@ export default function HistoryPage() {
           </table>
         )
       ) : loading ? (
-        <p className="helper">Loading...</p>
+        <div className="skeleton-stack">
+          <div className="skeleton-line lg" />
+          <div className="skeleton-line md" />
+          <div className="skeleton-line" />
+          <div className="skeleton-line" />
+        </div>
       ) : (
         <div className="report-layout">
           <aside className="report-tree">
@@ -326,7 +340,7 @@ export default function HistoryPage() {
                 <div className="page-card report-section">
                   <h2 className="section-title">Monthly Summary</h2>
                   {monthlySummary.length === 0 ? (
-                    <p className="helper">No slip data yet.</p>
+                    <div className="empty-state">No slip data yet.</div>
                   ) : (
                     <table className="table">
                       <thead>
@@ -352,7 +366,7 @@ export default function HistoryPage() {
                 <div className="page-card report-section">
                   <h2 className="section-title">Weekly Summary</h2>
                   {weeklySummary.length === 0 ? (
-                    <p className="helper">No slip data yet.</p>
+                    <div className="empty-state">No slip data yet.</div>
                   ) : (
                     <table className="table">
                       <thead>
@@ -378,7 +392,7 @@ export default function HistoryPage() {
                 <div className="page-card report-section">
                   <h2 className="section-title">Yearly Summary</h2>
                   {yearlySummary.length === 0 ? (
-                    <p className="helper">No slip data yet.</p>
+                    <div className="empty-state">No slip data yet.</div>
                   ) : (
                     <table className="table">
                       <thead>

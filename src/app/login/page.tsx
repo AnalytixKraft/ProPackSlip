@@ -1,7 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import {
+  Alert,
+  Button,
+  HelperText,
+  Input,
+  Label,
+} from '@/components/ui'
+import styles from '@/app/login/login.module.css'
 
 const STORAGE_KEY = 'packpro-auth'
 const USER_KEY = 'packpro-user'
@@ -9,22 +17,47 @@ const SESSION_KEY = 'packpro-session-start'
 const ACTIVITY_KEY = 'packpro-last-activity'
 const TIMEOUT_KEY = 'packpro-timeout-min'
 const BOOT_KEY = 'packpro-server-boot'
+const MODE_KEY = 'packpro-mode'
 
 export default function LoginPage() {
   const router = useRouter()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [working, setWorking] = useState(false)
-  const [toast, setToast] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [usernameError, setUsernameError] = useState<string | null>(null)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [formAlert, setFormAlert] = useState<string | null>(null)
 
-  const showToast = (message: string) => {
-    setToast(message)
-    window.setTimeout(() => setToast(null), 2600)
-  }
+  useEffect(() => {
+    document.body.classList.add('login-route')
+    const mode = localStorage.getItem(MODE_KEY)
+    if (mode === 'dark' || mode === 'light') {
+      document.body.dataset.mode = mode
+    }
+    return () => {
+      document.body.classList.remove('login-route')
+    }
+  }, [])
+
+  const buildInfo = useMemo(() => {
+    const value = process.env.NEXT_PUBLIC_APP_VERSION
+    return value ? `v${value}` : null
+  }, [])
 
   const handleLogin = async () => {
+    setUsernameError(null)
+    setPasswordError(null)
+    setFormAlert(null)
+
     if (!username.trim() || !password.trim()) {
-      showToast('Enter username and password.')
+      if (!username.trim()) {
+        setUsernameError('Username is required.')
+      }
+      if (!password.trim()) {
+        setPasswordError('Password is required.')
+      }
+      setFormAlert('Enter username and password.')
       return
     }
     setWorking(true)
@@ -62,52 +95,106 @@ export default function LoginPage() {
       router.replace('/')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed.'
-      showToast(message)
+      setFormAlert(message)
     } finally {
       setWorking(false)
     }
   }
 
   return (
-    <section className="page-card login-card">
-      <h1 className="section-title">Sign In</h1>
-      <p className="section-subtitle">
-        Use the admin credentials to access PackPro Slip.
-      </p>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault()
-          void handleLogin()
-        }}
-      >
-        <div className="form-grid full">
+    <section className={styles.loginScreen}>
+      <div className={styles.ambient} aria-hidden="true" />
+      <div className={`page-card login-card ${styles.heroCard}`}>
+        <header className={styles.brandBlock}>
+          <div className={styles.logoWrap} aria-hidden="true">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className={styles.logo} src="/Logo.png" alt="" />
+          </div>
           <div>
-            <label htmlFor="login-username">Username</label>
-            <input
+            <h1 className={styles.title}>Pro Pack Slip</h1>
+            <p className={styles.subtitle}>Generate packing slips and shipping labels.</p>
+          </div>
+        </header>
+        <form
+          className={styles.form}
+          onSubmit={(event) => {
+            event.preventDefault()
+            void handleLogin()
+          }}
+          noValidate
+        >
+          {formAlert ? <Alert variant="danger">{formAlert}</Alert> : null}
+          <div className={styles.field}>
+            <Label htmlFor="login-username">Username</Label>
+            <Input
               id="login-username"
               value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              placeholder="Username"
+              onChange={(event) => {
+                setUsername(event.target.value)
+                if (usernameError) setUsernameError(null)
+                if (formAlert) setFormAlert(null)
+              }}
+              placeholder="Enter username"
+              autoComplete="username"
+              aria-invalid={usernameError ? 'true' : 'false'}
+              aria-describedby={usernameError ? 'login-username-error' : undefined}
             />
+            {usernameError ? (
+              <HelperText id="login-username-error" tone="danger">
+                {usernameError}
+              </HelperText>
+            ) : null}
           </div>
-          <div>
-            <label htmlFor="login-password">Password</label>
-            <input
-              id="login-password"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Password"
-            />
+
+          <div className={styles.field}>
+            <Label htmlFor="login-password">Password</Label>
+            <div className={styles.passwordWrap}>
+              <Input
+                id="login-password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value)
+                  if (passwordError) setPasswordError(null)
+                  if (formAlert) setFormAlert(null)
+                }}
+                placeholder="Enter password"
+                autoComplete="current-password"
+                className={styles.passwordInput}
+                aria-invalid={passwordError ? 'true' : 'false'}
+                aria-describedby={passwordError ? 'login-password-error' : undefined}
+              />
+              <button
+                className={styles.toggle}
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            {passwordError ? (
+              <HelperText id="login-password-error" tone="danger">
+                {passwordError}
+              </HelperText>
+            ) : null}
           </div>
-        </div>
-        <div className="actions">
-          <button className="btn" type="submit" disabled={working}>
-            {working ? 'Signing In...' : 'Sign In'}
-          </button>
-        </div>
-      </form>
-      {toast ? <div className="toast">{toast}</div> : null}
+
+          <Button className={styles.submit} type="submit" disabled={working}>
+            <span className={styles.submitInner}>
+              {working ? <span className={styles.spinner} aria-hidden="true" /> : null}
+              {working ? 'Signing In...' : 'Sign In'}
+            </span>
+          </Button>
+          <p className={styles.assistive}>
+            Use your admin credentials to access the workspace.
+          </p>
+        </form>
+        <footer className={styles.watermark}>
+          <span className={styles.watermarkBrand}>AnalytixKraft</span>
+          {buildInfo ? <span className={styles.watermarkVersion}>{buildInfo}</span> : null}
+        </footer>
+      </div>
     </section>
   )
 }

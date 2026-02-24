@@ -36,6 +36,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Item name is required.' }, { status: 400 })
     }
 
+    const duplicateByName = await prisma.$queryRaw<Array<{ id: number }>>`
+      SELECT id
+      FROM "Item"
+      WHERE lower(trim(name)) = lower(trim(${name}))
+      LIMIT 1
+    `
+    if (duplicateByName.length > 0) {
+      return NextResponse.json(
+        { error: 'Item name already exists.' },
+        { status: 409 }
+      )
+    }
+
     const sku =
       skuInput ||
       `SKU-${Date.now().toString(36).toUpperCase()}-${Math.floor(

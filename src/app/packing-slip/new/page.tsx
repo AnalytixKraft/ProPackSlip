@@ -778,7 +778,7 @@ export default function NewPackingSlipPage() {
           <p className="section-subtitle">
             Enter the Bill No to open the slip for editing.
           </p>
-          <div className="form-grid">
+          <div className="table-toolbar">
             <div>
               <label htmlFor="search-bill">Bill No</label>
               <input
@@ -788,20 +788,20 @@ export default function NewPackingSlipPage() {
                 placeholder="Enter Bill No"
               />
             </div>
-          </div>
-          <div className="actions">
-            <button
-              className="btn"
-              type="button"
-              disabled={searching}
-              onClick={() => void handleSearch()}
-            >
-              {searching ? 'Searching...' : 'Search'}
-            </button>
+            <div className="toolbar-actions">
+              <button
+                className="btn"
+                type="button"
+                disabled={searching}
+                onClick={() => void handleSearch()}
+              >
+                {searching ? 'Searching...' : 'Search'}
+              </button>
+            </div>
           </div>
           {searchAttempted ? (
             searchResults.length === 0 ? (
-              <p className="helper">No slips found.</p>
+              <div className="empty-state">No slips found.</div>
             ) : (
               <table className="table">
                 <thead>
@@ -827,7 +827,7 @@ export default function NewPackingSlipPage() {
                         <td>{dateLabel}</td>
                         <td>{slip.customerName}</td>
                         <td>{slip._count.lines}</td>
-                        <td>
+                        <td className="table-action-cell">
                           <Link
                             className="btn ghost"
                             href={`/packing-slip/${slip.id}/edit`}

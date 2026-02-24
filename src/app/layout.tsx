@@ -7,6 +7,7 @@ import AuthGuard from '@/components/auth-guard'
 import AuthStatus from '@/components/auth-status'
 import NavLinks from '@/components/nav-links'
 import DesktopControls from '@/components/desktop-controls'
+import { AppShell } from '@/components/ui'
 
 const plex = IBM_Plex_Sans({
   subsets: ['latin'],
@@ -47,27 +48,40 @@ export default async function RootLayout({
         data-theme={theme}
       >
         <AuthGuard />
-        <div className="app-shell">
-          <header className="top-bar">
-            <Link className="brand" href="/">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="brand-logo" src={logoSrc} alt={`${companyName} logo`} />
-              <span className="brand-copy">
-                <span className="brand-title">{companyName}</span>
-                <span className="brand-meta">{companyMeta}</span>
-              </span>
-            </Link>
-            <div className="header-right">
+        <AppShell
+          sidebar={
+            <>
+              <Link className="brand" href="/">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="brand-logo" src={logoSrc} alt={`${companyName} logo`} />
+                <span className="brand-copy">
+                  <span className="brand-title">{companyName}</span>
+                  <span className="brand-meta">{companyMeta}</span>
+                </span>
+              </Link>
               <NavLinks />
-              <AuthStatus />
-              <DesktopControls />
+              <div className="sidebar-footer">
+                <AuthStatus />
+                <div className="sidebar-utility">
+                  <DesktopControls />
+                </div>
+              </div>
+            </>
+          }
+          header={
+            <div className="workspace-title-wrap">
+              <span className="workspace-label">Operations Workspace</span>
+              <span className="workspace-meta">{companyName}</span>
             </div>
-          </header>
-          <main>{children}</main>
-          <footer className="app-footer no-print">
-            Powered by AnalytixKraft 2026. All rights reserved.
-          </footer>
-        </div>
+          }
+          footer={
+            <footer className="app-footer no-print">
+              Powered by AnalytixKraft 2026. All rights reserved.
+            </footer>
+          }
+        >
+          {children}
+        </AppShell>
       </body>
     </html>
   )

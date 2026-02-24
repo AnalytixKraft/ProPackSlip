@@ -18,7 +18,12 @@ export default function NavLinks() {
   return (
     <nav className="nav">
       {links.map((link) => {
-        const active = pathname === link.href
+        const active =
+          pathname === link.href ||
+          (link.href === '/packing-slip/new' &&
+            pathname.startsWith('/packing-slip/')) ||
+          (link.href === '/shipping-labels/new' &&
+            pathname.startsWith('/shipping-labels/'))
         return (
           <Link
             key={link.href}

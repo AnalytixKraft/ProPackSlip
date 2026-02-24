@@ -438,7 +438,11 @@ export default function EditPackingSlipPage({ params }: PageProps) {
     return (
       <section className="page-card">
         <h1 className="section-title">Edit Packing Slip</h1>
-        <p className="helper">Loading...</p>
+        <div className="skeleton-stack">
+          <div className="skeleton-line lg" />
+          <div className="skeleton-line md" />
+          <div className="skeleton-line" />
+        </div>
       </section>
     )
   }
