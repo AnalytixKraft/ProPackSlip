@@ -1413,6 +1413,138 @@ textarea,
   gap: 6px;
 }
 
+.reports-dashboard {
+  display: grid;
+  gap: 16px;
+}
+
+.reports-filters-card {
+  background: color-mix(in srgb, var(--panel) 96%, transparent);
+}
+
+.reports-filters-card .section-subtitle {
+  margin-bottom: 10px;
+}
+
+.reports-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+.reports-customer-filter {
+  grid-column: span 2;
+}
+
+.reports-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.report-kpi-card {
+  background: color-mix(in srgb, var(--panel-soft) 88%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.report-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.reports-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.reports-chart-card {
+  padding-bottom: 14px;
+}
+
+.reports-chart-area {
+  margin-top: 8px;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--panel-soft) 72%, transparent);
+}
+
+.reports-chart-area .recharts-default-tooltip {
+  border: 1px solid var(--stroke) !important;
+  border-radius: 10px !important;
+  background: var(--panel) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.reports-leaderboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.reports-table-card {
+  padding-top: 18px;
+}
+
+.reports-table-card .section-title {
+  font-size: 1.05rem;
+}
+
+.reports-muted-inline {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.reports-muted-block {
+  color: var(--muted);
+  font-size: 0.87rem;
+  margin-bottom: 12px;
+}
+
+.reports-audit-card .section-subtitle {
+  margin-bottom: 6px;
+}
+
+.reports-audit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.reports-audit-left,
+.reports-audit-right {
+  min-width: 0;
+}
+
+.reports-subheading {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.reports-kpi-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.reports-kpi-mini-grid .report-card {
+  padding: 12px;
+}
+
+.reports-kpi-mini-grid .report-value {
+  font-size: 1.08rem;
+}
+
+.reports-danger-text {
+  color: #be4b4b;
+  font-weight: 600;
+}
+
 @keyframes skeleton {
   from {
     background-position-x: 0;
@@ -1441,6 +1573,20 @@ textarea,
   .sidebar-footer {
     margin-top: 6px;
   }
+
+  .reports-filters-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reports-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reports-chart-grid,
+  .reports-leaderboard-grid,
+  .reports-audit-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1460,6 +1606,19 @@ textarea,
 
   .label-grid {
     grid-template-columns: 1fr;
+  }
+
+  .reports-filters-grid,
+  .reports-kpi-grid,
+  .reports-chart-grid,
+  .reports-leaderboard-grid,
+  .reports-audit-grid,
+  .reports-kpi-mini-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reports-customer-filter {
+    grid-column: span 1;
   }
 }
 
