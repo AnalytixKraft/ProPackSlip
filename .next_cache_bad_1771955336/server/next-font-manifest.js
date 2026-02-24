@@ -1,1 +1,0 @@
-self.__NEXT_FONT_MANIFEST="{\"pages\":{},\"app\":{\"/Users/lijolawrance/work/analytixkraft/PackproSlip/src/app/layout\":[\"static/media/7b89a4fd5e90ede0-s.p.woff2\",\"static/media/26d4368bf94c0ec4-s.p.woff2\"]},\"appUsingSizeAdjust\":true,\"pagesUsingSizeAdjust\":false}"

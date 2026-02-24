@@ -10,6 +10,7 @@
 
 # next.js
 /.next/
+.next_cache_bad_*
 /out/
 
 # production
