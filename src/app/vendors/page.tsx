@@ -308,7 +308,7 @@ export default function VendorsPage() {
         <p className="section-subtitle">
           Search by name or GST to quickly pick the right customer.
         </p>
-        <div className="form-grid full">
+        <div className="table-toolbar">
           <div>
             <label htmlFor="vendor-search">Search</label>
             <input
@@ -332,19 +332,19 @@ export default function VendorsPage() {
               Columns: <code>name</code> and <code>address</code> required; optional <code>gst</code>, <code>email</code>, <code>contactName</code>, <code>phone</code>.
             </p>
           </div>
-        </div>
-        <div className="actions">
-          <button
-            className="btn secondary"
-            type="button"
-            disabled={importing}
-            onClick={() => void handleImport()}
-          >
-            {importing ? 'Importing...' : 'Import Customers'}
-          </button>
+          <div className="toolbar-actions">
+            <button
+              className="btn secondary"
+              type="button"
+              disabled={importing}
+              onClick={() => void handleImport()}
+            >
+              {importing ? 'Importing...' : 'Import Customers'}
+            </button>
+          </div>
         </div>
         {vendors.length === 0 ? (
-          <p className="helper">No customers found.</p>
+          <div className="empty-state">No customers found.</div>
         ) : (
           <table className="table">
             <thead>

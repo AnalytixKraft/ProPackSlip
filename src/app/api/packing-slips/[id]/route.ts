@@ -116,14 +116,13 @@ export async function PATCH(request: Request, { params }: RouteParams) {
             (line) =>
               Number.isInteger(line.itemId) &&
               line.itemId > 0 &&
-              line.qty > 0 &&
-              !!line.boxNumber
+              line.qty > 0
           )
       : []
 
     if (lines.length === 0) {
       return NextResponse.json(
-        { error: 'Each line requires qty and box number.' },
+        { error: 'Each line requires item and qty.' },
         { status: 400 }
       )
     }

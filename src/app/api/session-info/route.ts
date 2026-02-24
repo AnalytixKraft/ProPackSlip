@@ -16,8 +16,14 @@ export async function GET() {
   const settings = await prisma.companySettings.findFirst({
     select: { inactivityTimeoutMinutes: true },
   })
+  const timeoutMinutes =
+    typeof settings?.inactivityTimeoutMinutes === 'number' &&
+    Number.isFinite(settings.inactivityTimeoutMinutes) &&
+    settings.inactivityTimeoutMinutes > 0
+      ? Math.max(Math.round(settings.inactivityTimeoutMinutes), 300)
+      : 300
   return NextResponse.json({
     bootId,
-    inactivityTimeoutMinutes: settings?.inactivityTimeoutMinutes ?? 30,
+    inactivityTimeoutMinutes: timeoutMinutes,
   })
 }

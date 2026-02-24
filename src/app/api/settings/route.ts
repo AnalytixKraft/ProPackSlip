@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       typeof body.inactivityTimeoutMinutes === 'number' &&
       Number.isFinite(body.inactivityTimeoutMinutes) &&
       body.inactivityTimeoutMinutes > 0
-        ? Math.round(body.inactivityTimeoutMinutes)
+        ? Math.max(Math.round(body.inactivityTimeoutMinutes), 300)
         : null
     const theme =
       typeof body.theme === 'string' && allowedThemes.has(body.theme)

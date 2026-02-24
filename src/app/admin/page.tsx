@@ -30,7 +30,7 @@ const emptySettings: Settings = {
   address: '',
   slipNumberFormat: '',
   theme: 'sunset',
-  inactivityTimeoutMinutes: '30',
+  inactivityTimeoutMinutes: '300',
   logoDataUrl: '',
   loginUsername: '',
   loginPassword: '',
@@ -79,8 +79,8 @@ export default function AdminPage() {
             slipNumberFormat: data.slipNumberFormat || '',
             theme: data.theme || 'sunset',
             inactivityTimeoutMinutes: data.inactivityTimeoutMinutes
-              ? String(data.inactivityTimeoutMinutes)
-              : '30',
+              ? String(Math.max(Number(data.inactivityTimeoutMinutes) || 300, 300))
+              : '300',
             logoDataUrl: data.logoDataUrl || '',
             loginUsername: data.loginUsername || '',
             loginPassword: data.loginPassword || '',
@@ -387,7 +387,7 @@ export default function AdminPage() {
             <input
               id="inactivity-timeout"
               type="number"
-              min="1"
+              min="300"
               value={form.inactivityTimeoutMinutes}
               onChange={(event) =>
                 setForm((prev) => ({
@@ -395,9 +395,9 @@ export default function AdminPage() {
                   inactivityTimeoutMinutes: event.target.value,
                 }))
               }
-              placeholder="30"
+              placeholder="300"
             />
-            <p className="helper">Auto logout after this many minutes.</p>
+            <p className="helper">Auto logout after this many minutes (minimum 300).</p>
           </div>
         </div>
       ) : activeTab === 'login' ? (

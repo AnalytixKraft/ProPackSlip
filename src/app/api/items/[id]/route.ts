@@ -36,6 +36,22 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       )
     }
 
+    if (name) {
+      const duplicateByName = await prisma.$queryRaw<Array<{ id: number }>>`
+        SELECT id
+        FROM "Item"
+        WHERE lower(trim(name)) = lower(trim(${name}))
+          AND id <> ${itemId}
+        LIMIT 1
+      `
+      if (duplicateByName.length > 0) {
+        return NextResponse.json(
+          { error: 'Item name already exists.' },
+          { status: 409 }
+        )
+      }
+    }
+
     const item = await prisma.item.update({
       where: { id: itemId },
       data: {
