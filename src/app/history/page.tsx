@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import ReportsDashboard from '@/components/reports/reports-dashboard'
 
 type SlipSummary = {
   id: number
@@ -30,7 +31,6 @@ export default function HistoryPage() {
   const [activeTab, setActiveTab] = useState<'recent' | 'versions' | 'reports'>(
     'recent'
   )
-  const [activeReport, setActiveReport] = useState<'customers'>('customers')
 
   const showToast = (message: string) => {
     setToast(message)
@@ -62,7 +62,7 @@ export default function HistoryPage() {
   }, [])
 
   useEffect(() => {
-    if (activeTab !== 'versions' && activeTab !== 'reports') return
+    if (activeTab !== 'versions') return
     const controller = new AbortController()
     const loadRevisions = async () => {
       setLoadingRevisions(true)
@@ -86,40 +86,6 @@ export default function HistoryPage() {
     void loadRevisions()
     return () => controller.abort()
   }, [activeTab])
-
-  const getWeekKey = (date: Date) => {
-    const temp = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-    const dayNum = temp.getUTCDay() || 7
-    temp.setUTCDate(temp.getUTCDate() + 4 - dayNum)
-    const yearStart = new Date(Date.UTC(temp.getUTCFullYear(), 0, 1))
-    const weekNo = Math.ceil(((temp.getTime() - yearStart.getTime()) / 86400000 + 1) / 7)
-    return `${temp.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`
-  }
-
-  const buildCustomerSummary = (period: 'weekly' | 'monthly' | 'yearly') => {
-    const map = new Map<string, number>()
-    slips.forEach((slip) => {
-      const date = new Date(slip.slipDate)
-      let key = ''
-      if (period === 'yearly') {
-        key = `${date.getFullYear()}`
-      } else if (period === 'monthly') {
-        key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-      } else {
-        key = getWeekKey(date)
-      }
-      const composite = `${slip.customerName}||${key}`
-      map.set(composite, (map.get(composite) ?? 0) + 1)
-    })
-    return Array.from(map.entries()).map(([composite, count]) => {
-      const [customer, bucket] = composite.split('||')
-      return { customer, bucket, count }
-    })
-  }
-
-  const weeklySummary = buildCustomerSummary('weekly')
-  const monthlySummary = buildCustomerSummary('monthly')
-  const yearlySummary = buildCustomerSummary('yearly')
 
   return (
     <section className="page-card">
@@ -243,11 +209,7 @@ export default function HistoryPage() {
               {revisions.map((revision) => {
                 let snapshot: {
                   slipNo?: string
-                  slipDate?: string
                   customerName?: string
-                  shipTo?: string
-                  poNumber?: string | null
-                  trackingNumber?: string | null
                   lines?: Array<{ qty: number }>
                 } = {}
                 try {
@@ -296,128 +258,8 @@ export default function HistoryPage() {
             </tbody>
           </table>
         )
-      ) : loading ? (
-        <div className="skeleton-stack">
-          <div className="skeleton-line lg" />
-          <div className="skeleton-line md" />
-          <div className="skeleton-line" />
-          <div className="skeleton-line" />
-        </div>
       ) : (
-        <div className="report-layout">
-          <aside className="report-tree">
-            <div className="report-tree-title">Customers</div>
-            <button
-              type="button"
-              className={`tree-item${activeReport === 'customers' ? ' active' : ''}`}
-              onClick={() => setActiveReport('customers')}
-            >
-              Packing slips per customer
-            </button>
-            <div className="tree-subtitle">Shipping labels per customer</div>
-            <div className="tree-muted">No shipping label data yet.</div>
-          </aside>
-          <div className="report-content">
-            {activeReport === 'customers' ? (
-              <>
-                <div className="report-grid">
-                  <div className="report-card">
-                    <div className="report-title">Total Slips</div>
-                    <div className="report-value">{slips.length}</div>
-                  </div>
-                  <div className="report-card">
-                    <div className="report-title">Total Revisions</div>
-                    <div className="report-value">{revisions.length}</div>
-                  </div>
-                  <div className="report-card">
-                    <div className="report-title">Latest Slip</div>
-                    <div className="report-value">
-                      {slips[0]?.slipNo || '—'}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="page-card report-section">
-                  <h2 className="section-title">Monthly Summary</h2>
-                  {monthlySummary.length === 0 ? (
-                    <div className="empty-state">No slip data yet.</div>
-                  ) : (
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Customer</th>
-                          <th>Month</th>
-                          <th>Slips</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {monthlySummary.map((row, index) => (
-                          <tr key={`${row.customer}-${row.bucket}-${index}`}>
-                            <td>{row.customer}</td>
-                            <td>{row.bucket}</td>
-                            <td>{row.count}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-
-                <div className="page-card report-section">
-                  <h2 className="section-title">Weekly Summary</h2>
-                  {weeklySummary.length === 0 ? (
-                    <div className="empty-state">No slip data yet.</div>
-                  ) : (
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Customer</th>
-                          <th>Week</th>
-                          <th>Slips</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {weeklySummary.map((row, index) => (
-                          <tr key={`${row.customer}-${row.bucket}-${index}`}>
-                            <td>{row.customer}</td>
-                            <td>{row.bucket}</td>
-                            <td>{row.count}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-
-                <div className="page-card report-section">
-                  <h2 className="section-title">Yearly Summary</h2>
-                  {yearlySummary.length === 0 ? (
-                    <div className="empty-state">No slip data yet.</div>
-                  ) : (
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Customer</th>
-                          <th>Year</th>
-                          <th>Slips</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {yearlySummary.map((row, index) => (
-                          <tr key={`${row.customer}-${row.bucket}-${index}`}>
-                            <td>{row.customer}</td>
-                            <td>{row.bucket}</td>
-                            <td>{row.count}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </>
-            ) : null}
-          </div>
-        </div>
+        <ReportsDashboard onError={showToast} />
       )}
       {toast ? <div className="toast">{toast}</div> : null}
     </section>
