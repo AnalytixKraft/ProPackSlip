@@ -11,6 +11,79 @@ type ImportError = {
   message: string
 }
 
+type ParsedRow = {
+  rowNumber: number
+  name: string
+  normalizedName: string
+  unit: string
+  notes: string | null
+  normalizedSku: string
+}
+
+const commonUnits = new Set([
+  'pc',
+  'pcs',
+  'piece',
+  'pieces',
+  'no',
+  'nos',
+  'unit',
+  'units',
+  'box',
+  'boxes',
+  'pack',
+  'packs',
+  'set',
+  'sets',
+  'pair',
+  'pairs',
+  'roll',
+  'rolls',
+  'carton',
+  'cartons',
+  'dozen',
+  'kg',
+  'g',
+  'gm',
+  'mg',
+  'l',
+  'ltr',
+  'liter',
+  'litre',
+  'ml',
+])
+
+const isLikelyUnit = (value: string) => {
+  const normalized = value.trim().toLowerCase()
+  if (!normalized) return false
+  if (commonUnits.has(normalized)) return true
+  return /^([0-9]+(\.[0-9]+)?)\s*[a-z]+$/i.test(normalized)
+}
+
+const inferNameFromRow = (row: Record<string, string>) => {
+  const values = Object.values(row)
+    .map((value) => value.trim())
+    .filter(Boolean)
+  if (values.length === 0) return ''
+  const nonUnits = values.filter((value) => !isLikelyUnit(value))
+  const pool = nonUnits.length > 0 ? nonUnits : values
+  return pool.reduce((best, current) =>
+    current.length > best.length ? current : best
+  )
+}
+
+const inferUnitFromRow = (row: Record<string, string>) => {
+  const values = Object.values(row)
+    .map((value) => value.trim())
+    .filter(Boolean)
+  for (const value of values) {
+    if (isLikelyUnit(value)) {
+      return value
+    }
+  }
+  return ''
+}
+
 const createAutoSku = (seed: number) =>
   `SKU-${Date.now().toString(36).toUpperCase()}-${seed.toString(36).toUpperCase()}-${Math.floor(
     100 + Math.random() * 900
@@ -46,13 +119,25 @@ export async function POST(request: Request) {
     let failed = 0
     const errors: ImportError[] = []
     let skuSeed = 1
+    let duplicateNameRowsRemoved = 0
+
+    const latestRowByName = new Map<string, ParsedRow>()
 
     for (let index = 0; index < rows.length; index += 1) {
       const row = rows[index]
       const rowNumber = index + 2
-
-      const name = readFirstValue(row, ['name', 'item', 'itemname', 'product', 'productname'])
-      const unit = readFirstValue(row, ['unit', 'uom']) || 'pcs'
+      const nameFromHeader = readFirstValue(row, [
+        'name',
+        'item',
+        'itemname',
+        'product',
+        'productname',
+      ])
+      const unitFromHeader = readFirstValue(row, ['unit', 'uom'])
+      const inferredName = inferNameFromRow(row)
+      const inferredUnit = inferUnitFromRow(row)
+      const name = nameFromHeader || inferredName
+      const unit = unitFromHeader || inferredUnit || 'pcs'
       const notes = readFirstValue(row, ['notes', 'description', 'remark']) || null
       const skuInput = readFirstValue(row, ['sku', 'itemcode']).toUpperCase()
 
@@ -68,14 +153,33 @@ export async function POST(request: Request) {
         continue
       }
 
-      const normalizedName = name.toLowerCase()
+      const normalizedName = name.trim().toLowerCase()
       const normalizedSku = skuInput.trim()
+      if (latestRowByName.has(normalizedName)) {
+        duplicateNameRowsRemoved += 1
+      }
+      latestRowByName.set(normalizedName, {
+        rowNumber,
+        name,
+        normalizedName,
+        unit,
+        notes,
+        normalizedSku,
+      })
+    }
+
+    const rowsToImport = Array.from(latestRowByName.values()).sort(
+      (a, b) => a.rowNumber - b.rowNumber
+    )
+
+    for (const row of rowsToImport) {
+      const { rowNumber, name, normalizedName, unit, notes, normalizedSku } = row
 
       let matchedId: number | undefined
-      if (normalizedSku && skuToId.has(normalizedSku)) {
-        matchedId = skuToId.get(normalizedSku)
-      } else if (nameToId.has(normalizedName)) {
+      if (nameToId.has(normalizedName)) {
         matchedId = nameToId.get(normalizedName)
+      } else if (normalizedSku && skuToId.has(normalizedSku)) {
+        matchedId = skuToId.get(normalizedSku)
       }
 
       try {
@@ -141,6 +245,9 @@ export async function POST(request: Request) {
       updated,
       skipped,
       failed,
+      duplicateNameRowsRemoved,
+      rowsAfterDuplicateRemoval: rowsToImport.length,
+      loaded: created + updated,
       total: rows.length,
       errors: errors.slice(0, 30),
     })

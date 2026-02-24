@@ -27,6 +27,7 @@ Core capabilities:
 - Customer master management (active/inactive + import from CSV/XLSX)
 - Item master management (active/inactive + import from CSV/XLSX)
 - Packing slip create/edit/search with line items and box numbers
+- Quick add item while creating/editing a packing slip (without leaving the slip page)
 - Revision history snapshots per slip version
 - Printable packing slips and shipping labels
 - PDF export for packing slips using Playwright
@@ -213,6 +214,10 @@ flowchart TD
   U --> O[Import summary: created/updated/skipped/failed]
   C --> O
 ```
+
+Item import accepts both:
+- Header-based sheets (`name`/`item`/`product`, `unit`, `sku`, `notes`)
+- Headerless sheets (name/unit inferred from row values; useful for vendor product lists)
 
 ## API Surface
 

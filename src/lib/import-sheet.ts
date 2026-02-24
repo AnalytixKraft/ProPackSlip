@@ -5,6 +5,23 @@ export type ImportedRow = Record<string, string>
 const normalizeHeader = (value: string) =>
   value.toLowerCase().replace(/[^a-z0-9]/g, '')
 
+const knownHeaders = new Set(
+  [
+    'name',
+    'item',
+    'itemname',
+    'product',
+    'productname',
+    'unit',
+    'uom',
+    'sku',
+    'itemcode',
+    'notes',
+    'description',
+    'remark',
+  ].map(normalizeHeader)
+)
+
 const normalizeCell = (value: unknown): string => {
   if (value == null) return ''
   return String(value).trim()
@@ -29,7 +46,7 @@ export const readImportedRows = async (file: File): Promise<ImportedRow[]> => {
     raw: false,
   })
 
-  return records.map((record) => {
+  const normalizedRecords = records.map((record) => {
     const normalized: ImportedRow = {}
     Object.entries(record).forEach(([key, value]) => {
       const normalizedKey = normalizeHeader(key)
@@ -38,6 +55,33 @@ export const readImportedRows = async (file: File): Promise<ImportedRow[]> => {
     })
     return normalized
   })
+
+  const hasKnownHeader = normalizedRecords.some((row) =>
+    Object.keys(row).some((key) => knownHeaders.has(key))
+  )
+  if (hasKnownHeader) {
+    return normalizedRecords
+  }
+
+  // Fallback for headerless sheets where the first row is actual item data.
+  const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
+    header: 1,
+    defval: '',
+    raw: false,
+  })
+
+  return rows
+    .map((cells) => {
+      const normalized: ImportedRow = {}
+      cells.forEach((value, index) => {
+        const key = `col${index + 1}`
+        normalized[key] = normalizeCell(value)
+      })
+      return normalized
+    })
+    .filter((row) =>
+      Object.values(row).some((value) => value.trim().length > 0)
+    )
 }
 
 export const readFirstValue = (
