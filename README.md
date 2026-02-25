@@ -320,7 +320,7 @@ npx prisma db push
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3205` (if busy, it automatically tries `3206`, `3207`, and so on).
 
 ### Enable PDF generation
 

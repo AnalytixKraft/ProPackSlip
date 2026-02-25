@@ -4,7 +4,7 @@ const http = require('http')
 const path = require('path')
 
 const DEFAULT_CONFIG = {
-  appUrl: 'http://localhost:3000',
+  appUrl: 'http://localhost:3205',
   window: {
     width: 1280,
     height: 800,

@@ -87,24 +87,24 @@ export default async function HomePage() {
                     <td>{dateLabel}</td>
                     <td>{slip.customerName}</td>
                     <td>{slip._count.lines}</td>
-                    <td className="table-action-cell">
-                      <div className="actions inline-actions">
-                      <a
-                        className="btn secondary"
-                        href={`/print/packing-slip/${slip.id}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        View
-                      </a>
-                      <Link
-                        className="btn ghost"
-                        href={`/packing-slip/${slip.id}/edit`}
-                      >
-                        Edit
-                      </Link>
+                    <td className="table-action-cell table-action-cell--recent">
+                      <div className="table-action-group">
                         <a
-                          className="btn ghost"
+                          className="btn secondary table-action-btn"
+                          href={`/print/packing-slip/${slip.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          View
+                        </a>
+                        <Link
+                          className="btn ghost table-action-btn"
+                          href={`/packing-slip/${slip.id}/edit`}
+                        >
+                          Edit
+                        </Link>
+                        <a
+                          className="btn ghost table-action-btn"
                           href={`/print/packing-slip/${slip.id}?autoprint=1`}
                           target="_blank"
                           rel="noreferrer"
