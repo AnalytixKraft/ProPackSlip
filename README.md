@@ -29,6 +29,7 @@ Core capabilities:
 - Packing slip create/edit/search with line items and box numbers
 - Quick add item while creating/editing a packing slip (without leaving the slip page)
 - Revision history snapshots per slip version
+- Reporting dashboard with filterable overview, items, and revisions insights
 - Printable packing slips and shipping labels
 - PDF export for packing slips using Playwright
 - Admin settings for branding, login credentials, theme, timeout, numbering format
@@ -258,12 +259,28 @@ Item import accepts both:
 - `GET /api/packing-slips/revisions`
 - `GET /api/packing-slips/:id/pdf`
 
+### Reports and analytics
+
+- `GET /api/reports/overview`
+- `GET /api/reports/timeseries?metric=slips|qty|revisions`
+- `GET /api/reports/customers/top`
+- `GET /api/reports/vendors/top`
+- `GET /api/reports/items/top?mode=qty|freq`
+- `GET /api/reports/items/summary`
+- `GET /api/reports/revisions/top`
+- Legacy compatibility endpoints are also present:
+  - `GET /api/reports/top-customers`
+  - `GET /api/reports/top-vendors`
+  - `GET /api/reports/top-items`
+  - `GET /api/reports/revision-insights`
+
 ## Project Structure
 
 ```text
 src/
   app/
     api/                      # Route handlers (server APIs)
+      reports/                # Reports endpoints
     packing-slip/             # Create/edit flows
     print/                    # Print-optimized slip page
     shipping-labels/          # Label generator pages
@@ -272,10 +289,16 @@ src/
     admin/                    # Settings and cleanup UI
     history/                  # Recent slips, versions, reports
   components/                 # Auth guard, nav, print controls, desktop controls
+    reports/                  # Reports dashboard UI
   lib/
     prisma.ts                 # Prisma bootstrap + DATABASE_URL normalization
     import-sheet.ts           # CSV/XLSX parser helpers
+    reporting.ts              # Shared report filter/sql helpers
     validators.ts             # Email/phone/GST normalization + validation
+scripts/
+  run-next-with-port.js       # Start Next on 3205 (fallback to next free port)
+  port-utils.js               # Port probing/fallback helpers
+  desktop-dev.js              # Dev orchestrator (Next + Electron)
 desktop/
   main.js                     # Electron main process + embedded Next server
   preload.js                  # Safe window bridge
@@ -321,6 +344,12 @@ npm run dev
 ```
 
 Open `http://localhost:3205` (if busy, it automatically tries `3206`, `3207`, and so on).
+
+Override the base port if needed:
+
+```bash
+APP_BASE_PORT=3300 npm run dev
+```
 
 ### Enable PDF generation
 
@@ -383,10 +412,10 @@ Admin page (`/admin`) controls:
 
 ## Scripts
 
-- `npm run dev` - Next development server
+- `npm run dev` - Next development server (default `3205`, auto-fallback to next free port)
 - `npm run build` - Next production build
-- `npm run start` - Next production server
+- `npm run start` - Next production server (default `3205`, auto-fallback to next free port)
 - `npm run prisma` - Prisma CLI passthrough
-- `npm run desktop:dev` - Next dev + Electron
+- `npm run desktop:dev` - Next dev + Electron (uses resolved dev port automatically)
 - `npm run desktop:prepare` - Prepare desktop assets/template DB
 - `npm run desktop:dist` - Build macOS + Windows installers
