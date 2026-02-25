@@ -136,7 +136,7 @@ export default function HistoryPage() {
                 <th>Date</th>
                 <th>Customer</th>
                 <th>Lines</th>
-                <th></th>
+                <th className="table-action-header">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -152,27 +152,30 @@ export default function HistoryPage() {
                     <td>{dateLabel}</td>
                     <td>{slip.customerName}</td>
                     <td>{slip._count.lines}</td>
-                    <td className="table-action-cell">
-                      <div className="actions inline-actions">
+                    <td className="table-action-cell table-action-cell--recent">
+                      <div className="table-action-group">
                         <a
-                          className="btn secondary"
+                          className="btn secondary table-action-btn"
                           href={`/print/packing-slip/${slip.id}`}
                           target="_blank"
                           rel="noreferrer"
+                          aria-label={`View slip ${slip.slipNo}`}
                         >
                           View
                         </a>
                         <Link
-                          className="btn ghost"
+                          className="btn ghost table-action-btn"
                           href={`/packing-slip/${slip.id}/edit`}
+                          aria-label={`Edit slip ${slip.slipNo}`}
                         >
                           Edit
                         </Link>
                         <a
-                          className="btn ghost"
+                          className="btn table-action-btn"
                           href={`/print/packing-slip/${slip.id}?autoprint=1`}
                           target="_blank"
                           rel="noreferrer"
+                          aria-label={`Print slip ${slip.slipNo}`}
                         >
                           Print
                         </a>
