@@ -29,6 +29,7 @@ Core capabilities:
 - Packing slip create/edit/search with line items and box numbers
 - Quick add item while creating/editing a packing slip (without leaving the slip page)
 - Revision history snapshots per slip version
+- Reporting dashboard with filterable overview, items, and revisions insights
 - Printable packing slips and shipping labels
 - PDF export for packing slips using Playwright
 - Admin settings for branding, login credentials, theme, timeout, numbering format
@@ -258,12 +259,28 @@ Item import accepts both:
 - `GET /api/packing-slips/revisions`
 - `GET /api/packing-slips/:id/pdf`
 
+### Reports and analytics
+
+- `GET /api/reports/overview`
+- `GET /api/reports/timeseries?metric=slips|qty|revisions`
+- `GET /api/reports/customers/top`
+- `GET /api/reports/vendors/top`
+- `GET /api/reports/items/top?mode=qty|freq`
+- `GET /api/reports/items/summary`
+- `GET /api/reports/revisions/top`
+- Legacy compatibility endpoints are also present:
+  - `GET /api/reports/top-customers`
+  - `GET /api/reports/top-vendors`
+  - `GET /api/reports/top-items`
+  - `GET /api/reports/revision-insights`
+
 ## Project Structure
 
 ```text
 src/
   app/
     api/                      # Route handlers (server APIs)
+      reports/                # Reports endpoints
     packing-slip/             # Create/edit flows
     print/                    # Print-optimized slip page
     shipping-labels/          # Label generator pages
@@ -272,10 +289,18 @@ src/
     admin/                    # Settings and cleanup UI
     history/                  # Recent slips, versions, reports
   components/                 # Auth guard, nav, print controls, desktop controls
+    reports/                  # Reports dashboard UI
   lib/
     prisma.ts                 # Prisma bootstrap + DATABASE_URL normalization
     import-sheet.ts           # CSV/XLSX parser helpers
+    reporting.ts              # Shared report filter/sql helpers
     validators.ts             # Email/phone/GST normalization + validation
+scripts/
+  run-next-with-port.js       # Start Next on 3205 (fallback to next free port)
+  port-utils.js               # Port probing/fallback helpers
+  desktop-dev.js              # Dev orchestrator (Next + Electron)
+  start-server.js             # Run Next dev in background and track PID
+  stop-server.js              # Stop the tracked background server
 desktop/
   main.js                     # Electron main process + embedded Next server
   preload.js                  # Safe window bridge
@@ -288,15 +313,16 @@ prisma/
 
 ### Prerequisites
 
-- Node.js 18+
-- npm
-- `sqlite3` CLI (required for `npm run desktop:prepare`)
+- Node.js 24.14.0
+- pnpm
+- `sqlite3` CLI (required for `pnpm desktop:prepare`)
 - Playwright Chromium (required for PDF endpoint)
 
 ### Install
 
 ```bash
-npm install
+nvm use
+pnpm install
 ```
 
 ### Environment
@@ -317,10 +343,16 @@ npx prisma db push
 ### Run web app
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open `http://localhost:3205` (if busy, it automatically tries `3206`, `3207`, and so on).
+
+Override the base port if needed:
+
+```bash
+APP_BASE_PORT=3300 pnpm dev
+```
 
 ### Enable PDF generation
 
@@ -333,21 +365,21 @@ npx playwright install chromium
 ### Run desktop in development
 
 ```bash
-npm run desktop:dev
+pnpm desktop:dev
 ```
 
 ### Build installers
 
 ```bash
-npm run desktop:dist
+pnpm desktop:dist
 ```
 
 Platform-specific:
 
 ```bash
-npm run desktop:mac
-npm run desktop:win
-npm run desktop:win:portable
+pnpm desktop:mac
+pnpm desktop:win
+pnpm desktop:win:portable
 ```
 
 Important:
@@ -375,7 +407,7 @@ Admin page (`/admin`) controls:
   - Run `npx playwright install chromium`
 - Desktop build fails on missing DB template:
   - Create schema first via app run or `npx prisma db push`
-  - Then run `npm run desktop:prepare`
+  - Then run `pnpm desktop:prepare`
 - Login fails after server restart:
   - `AuthGuard` compares boot IDs and forces re-login by design
 - Cannot delete customer/item:
@@ -383,10 +415,14 @@ Admin page (`/admin`) controls:
 
 ## Scripts
 
-- `npm run dev` - Next development server
-- `npm run build` - Next production build
-- `npm run start` - Next production server
-- `npm run prisma` - Prisma CLI passthrough
-- `npm run desktop:dev` - Next dev + Electron
-- `npm run desktop:prepare` - Prepare desktop assets/template DB
-- `npm run desktop:dist` - Build macOS + Windows installers
+- `pnpm dev` - Next development server (default `3205`, auto-fallback to next free port)
+- `pnpm build` - Next production build
+- `pnpm start` - Next production server (default `3205`, auto-fallback to next free port)
+- `pnpm server:start` - Start the Next dev server in the background and write `.next-server.pid`
+- `pnpm server:stop` - Stop the background server started by `pnpm server:start`
+- `pnpm stack:up` - Alias for the background Next dev server start flow
+- `pnpm stack:down` - Alias for the background server stop flow
+- `pnpm prisma` - Prisma CLI passthrough
+- `pnpm desktop:dev` - Next dev + Electron (uses resolved dev port automatically)
+- `pnpm desktop:prepare` - Prepare desktop assets/template DB
+- `pnpm desktop:dist` - Build macOS + Windows installers
