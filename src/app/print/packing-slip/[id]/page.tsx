@@ -134,34 +134,31 @@ export default async function PrintPackingSlipPage({ params }: PageProps) {
         <table className="print-table">
           <thead>
             <tr>
-              <th style={{ width: '8%' }} className="align-right">Sl No</th>
+              <th>Sl No</th>
               <th>Item Name</th>
-              <th style={{ width: '16%' }}>Box Name</th>
-              <th style={{ width: '14%' }} className="align-right">Box No</th>
-              <th style={{ width: '10%' }} className="align-center">UOM</th>
-              <th style={{ width: '10%' }} className="align-right">Quantity</th>
+              <th>Box Name</th>
+              <th>Box No</th>
+              <th>UOM</th>
+              <th>Quantity</th>
             </tr>
           </thead>
           <tbody>
             {slip.lines.map((line, index) => {
               return (
                 <tr key={line.id}>
-                  <td className="align-right">{index + 1}</td>
+                  <td>{index + 1}</td>
                   <td>{line.item.name}</td>
                   <td>{line.boxName || '-'}</td>
-                  <td className="align-right">{line.boxNumber || '-'}</td>
-                  <td className="align-center">{line.item.unit}</td>
-                  <td className="align-right">{line.qty}</td>
+                  <td>{line.boxNumber || '-'}</td>
+                  <td>{line.item.unit}</td>
+                  <td>{line.qty}</td>
                 </tr>
               )
             })}
           </tbody>
         </table>
 
-        <div className="print-summary-row">
-          <div>Total Items: {slip.lines.length}</div>
-          <div></div>
-        </div>
+        <div className="print-summary-row total-items">Total Items: {slip.lines.length}</div>
 
         <div className="print-footer">
           <div className="print-footer-right">

@@ -10,7 +10,8 @@ type PageProps = {
 }
 
 type BoxSummary = {
-  boxNumber: string
+  key: string
+  boxNumber: string | null
   boxName: string | null
   items: Array<{ name: string; qty: number }>
 }
@@ -38,24 +39,39 @@ export default async function SlipLabelsPage({ params }: PageProps) {
   const boxMap = new Map<string, BoxSummary>()
 
   slip.lines.forEach((line) => {
+    const boxName = line.boxName?.trim() || null
     const boxNumber = line.boxNumber?.trim()
-    if (!boxNumber) return
-    const existing = boxMap.get(boxNumber)
+    if (!boxName && !boxNumber) return
+
+    const boxKey = `${boxName ?? ''}::${boxNumber ?? ''}`
+    const existing = boxMap.get(boxKey)
     const entry: BoxSummary =
       existing ?? {
-        boxNumber,
-        boxName: line.boxName?.trim() || null,
+        key: boxKey,
+        boxNumber: boxNumber || null,
+        boxName,
         items: [],
       }
-    entry.items.push({ name: line.item.name, qty: line.qty })
+
+    const existingItem = entry.items.find((item) => item.name === line.item.name)
+    if (existingItem) {
+      existingItem.qty += line.qty
+    } else {
+      entry.items.push({ name: line.item.name, qty: line.qty })
+    }
+
     if (!existing) {
-      boxMap.set(boxNumber, entry)
+      boxMap.set(boxKey, entry)
     }
   })
 
-  const boxes = Array.from(boxMap.values()).sort((a, b) =>
-    a.boxNumber.localeCompare(b.boxNumber)
-  )
+  const boxes = Array.from(boxMap.values()).sort((a, b) => {
+    const numberCompare = (a.boxNumber || '').localeCompare(b.boxNumber || '')
+    if (numberCompare !== 0) {
+      return numberCompare
+    }
+    return (a.boxName || '').localeCompare(b.boxName || '')
+  })
 
   if (boxes.length === 0) {
     return (
@@ -63,7 +79,7 @@ export default async function SlipLabelsPage({ params }: PageProps) {
         <PrintMode />
         <section className="page-card">
           <h1 className="section-title">Shipping Labels</h1>
-          <div className="empty-state">No box numbers found for this slip.</div>
+          <div className="empty-state">No box details found for this slip.</div>
         </section>
       </>
     )
@@ -91,7 +107,7 @@ export default async function SlipLabelsPage({ params }: PageProps) {
         </div>
         <div className="label-grid-sheet">
           {boxes.map((box, index) => (
-            <div className="label-card sheet" key={box.boxNumber}>
+            <div className="label-card sheet" key={box.key}>
               <div className="label-row">
                 <div>
                   <div className="label-title">From</div>
@@ -134,7 +150,7 @@ export default async function SlipLabelsPage({ params }: PageProps) {
                 <div>
                   <div className="label-title">Box</div>
                   <div className="label-text">{box.boxName || '-'}</div>
-                  <div className="label-text">No: {box.boxNumber}</div>
+                  <div className="label-text">No: {box.boxNumber || '-'}</div>
                 </div>
                 <div className="label-meta">
                   <div className="label-title">Items</div>

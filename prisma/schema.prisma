@@ -54,7 +54,7 @@ model PackingSlip {
   slipNo       String             @unique
   customerName String
   shipTo       String
-  poNumber     String?            @unique
+  poNumber     String?
   boxNumber    String?
   trackingNumber String?
   slipDate     DateTime

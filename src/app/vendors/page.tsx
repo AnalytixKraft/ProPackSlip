@@ -48,7 +48,7 @@ export default function VendorsPage() {
       try {
         const response = await fetch(
           `/api/vendors?query=${encodeURIComponent(query)}&includeInactive=1`,
-          { signal: controller.signal }
+          { signal: controller.signal, cache: 'no-store' }
         )
         if (!response.ok) {
           throw new Error('Unable to load customers.')
@@ -101,6 +101,7 @@ export default function VendorsPage() {
       const response = await fetch('/api/vendors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
         body: JSON.stringify(normalizedForm),
       })
       if (!response.ok) {
@@ -125,6 +126,7 @@ export default function VendorsPage() {
       const response = await fetch(`/api/vendors/${vendor.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
         body: JSON.stringify({ isActive: !vendor.isActive }),
       })
       if (!response.ok) {
@@ -148,6 +150,7 @@ export default function VendorsPage() {
     try {
       const response = await fetch(`/api/vendors/${vendor.id}`, {
         method: 'DELETE',
+        cache: 'no-store',
       })
       if (!response.ok) {
         const data = await response.json().catch(() => ({}))
@@ -175,6 +178,7 @@ export default function VendorsPage() {
 
       const response = await fetch('/api/vendors/import', {
         method: 'POST',
+        cache: 'no-store',
         body: payload,
       })
       const data = await response.json().catch(() => ({}))
@@ -183,7 +187,8 @@ export default function VendorsPage() {
       }
 
       const reloadResponse = await fetch(
-        `/api/vendors?query=${encodeURIComponent(query)}&includeInactive=1`
+        `/api/vendors?query=${encodeURIComponent(query)}&includeInactive=1`,
+        { cache: 'no-store' }
       )
       if (reloadResponse.ok) {
         const rows: Vendor[] = await reloadResponse.json()

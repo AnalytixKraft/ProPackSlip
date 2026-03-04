@@ -55,7 +55,7 @@ export default function NewItemPage() {
     async (signal?: AbortSignal) => {
       const response = await fetch(
         `/api/items?query=${encodeURIComponent(query)}&includeInactive=1`,
-        { signal }
+        { signal, cache: 'no-store' }
       )
       if (!response.ok) {
         throw new Error('Unable to load items.')
@@ -86,6 +86,7 @@ export default function NewItemPage() {
       const response = await fetch('/api/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
         body: JSON.stringify(form),
       })
       if (!response.ok) {
@@ -112,6 +113,7 @@ export default function NewItemPage() {
       const response = await fetch(`/api/items/${item.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
         body: JSON.stringify({ isActive: !item.isActive }),
       })
       if (!response.ok) {
@@ -156,6 +158,7 @@ export default function NewItemPage() {
       const response = await fetch(`/api/items/${item.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
         body: JSON.stringify({
           name: editForm.name,
           unit: editForm.unit,
@@ -185,6 +188,7 @@ export default function NewItemPage() {
     try {
       const response = await fetch(`/api/items/${item.id}`, {
         method: 'DELETE',
+        cache: 'no-store',
       })
       if (!response.ok) {
         const data = await response.json().catch(() => ({}))
@@ -213,6 +217,7 @@ export default function NewItemPage() {
 
       const response = await fetch('/api/items/import', {
         method: 'POST',
+        cache: 'no-store',
         body: payload,
       })
       const data = await response.json().catch(() => ({}))

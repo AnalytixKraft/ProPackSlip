@@ -21,7 +21,11 @@ export async function GET(request: Request) {
     take: 50,
   })
 
-  return NextResponse.json(items)
+  return NextResponse.json(items, {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+    },
+  })
 }
 
 export async function POST(request: Request) {

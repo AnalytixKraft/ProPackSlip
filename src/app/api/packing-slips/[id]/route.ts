@@ -76,23 +76,6 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       )
     }
 
-    if (poNumber) {
-      const existingBill = await prisma.packingSlip.findFirst({
-        where: { poNumber, NOT: { id: slipId } },
-        select: { id: true, slipNo: true },
-      })
-      if (existingBill) {
-        return NextResponse.json(
-          {
-            error: 'Bill No already exists.',
-            slipId: existingBill.id,
-            slipNo: existingBill.slipNo,
-          },
-          { status: 409 }
-        )
-      }
-    }
-
     const slipDate = slipDateInput ? new Date(slipDateInput) : new Date()
     if (Number.isNaN(slipDate.getTime())) {
       return NextResponse.json({ error: 'Invalid slip date.' }, { status: 400 })

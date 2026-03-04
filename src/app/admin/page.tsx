@@ -45,6 +45,7 @@ export default function AdminPage() {
     'company' | 'settings' | 'login' | 'cleanup'
   >('company')
   const [cleaning, setCleaning] = useState<string | null>(null)
+  const [repairingDb, setRepairingDb] = useState(false)
   const [pendingAction, setPendingAction] = useState<{
     action: 'slips' | 'labels' | 'items' | 'customers'
     label: string
@@ -204,6 +205,27 @@ export default function AdminPage() {
     } finally {
       setCleaning(null)
       setPendingAction(null)
+    }
+  }
+
+  const handleRepairDatabase = async () => {
+    setRepairingDb(true)
+    try {
+      const response = await fetch('/api/admin/repair-db', {
+        method: 'POST',
+        cache: 'no-store',
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to repair database.')
+      }
+      showToast(data.message || 'Database is up to date.')
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to repair database.'
+      showToast(message)
+    } finally {
+      setRepairingDb(false)
     }
   }
 
@@ -435,7 +457,21 @@ export default function AdminPage() {
       ) : (
         <div className="form-grid full">
           <div className="inline-alert">
-            <span>Bulk delete data. This cannot be undone.</span>
+            <span>
+              Bulk delete data or repair the desktop database schema. If repair
+              fails during desktop startup, the app will offer to create a fresh
+              database with the correct schema.
+            </span>
+          </div>
+          <div className="actions">
+            <button
+              className="btn secondary"
+              type="button"
+              disabled={repairingDb}
+              onClick={() => void handleRepairDatabase()}
+            >
+              {repairingDb ? 'Repairing...' : 'Repair Database'}
+            </button>
           </div>
           <div className="actions">
             <button

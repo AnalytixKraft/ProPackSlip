@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 type ItemOption = {
   id: number
@@ -91,10 +90,7 @@ export default function EditPackingSlipPage({ params }: PageProps) {
   const [lines, setLines] = useState<SlipLine[]>([createLine()])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [duplicateSlipId, setDuplicateSlipId] = useState<number | null>(null)
-  const [duplicateSlipNo, setDuplicateSlipNo] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
-  const router = useRouter()
 
   const showToast = (message: string) => {
     setToast(message)
@@ -123,12 +119,6 @@ export default function EditPackingSlipPage({ params }: PageProps) {
     window.addEventListener('beforeunload', handler)
     return () => window.removeEventListener('beforeunload', handler)
   }, [isDirty])
-
-  useEffect(() => {
-    if (!duplicateSlipId) return
-    setDuplicateSlipId(null)
-    setDuplicateSlipNo(null)
-  }, [customerName, shipTo, poNumber, vendorId, slipDate, lines, duplicateSlipId])
 
   useEffect(() => {
     if (!Number.isInteger(slipId)) {
@@ -393,17 +383,10 @@ export default function EditPackingSlipPage({ params }: PageProps) {
       })
       if (!response.ok) {
         const data = await response.json().catch(() => ({}))
-        if (response.status === 409 && data?.slipId) {
-          setDuplicateSlipId(Number(data.slipId))
-          setDuplicateSlipNo(data.slipNo ? String(data.slipNo) : null)
-          throw new Error(data.error || 'Bill No already exists.')
-        }
         throw new Error(data.error || 'Unable to update packing slip.')
       }
       const updated = await response.json()
       setSlipNo(updated.slipNo || slipNo)
-      setDuplicateSlipId(null)
-      setDuplicateSlipNo(null)
       showToast('Slip updated.')
     } catch (error) {
       const message =
@@ -624,20 +607,6 @@ export default function EditPackingSlipPage({ params }: PageProps) {
             {saving ? 'Generating...' : 'Generate Labels'}
           </button>
         </div>
-        {duplicateSlipId ? (
-          <div className="inline-alert">
-            <span>
-              Bill No already exists{duplicateSlipNo ? ` (${duplicateSlipNo})` : ''}.
-            </span>
-            <button
-              className="btn ghost"
-              type="button"
-              onClick={() => router.push(`/packing-slip/${duplicateSlipId}/edit`)}
-            >
-              Edit Existing Slip
-            </button>
-          </div>
-        ) : null}
         {showQuickItem ? (
           <div className="inline-alert">
             <div style={{ width: '100%' }}>

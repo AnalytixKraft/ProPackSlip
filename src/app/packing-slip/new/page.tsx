@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 type ItemOption = {
   id: number
@@ -46,10 +45,25 @@ type QuickItemForm = {
 const createLine = (): SlipLine => ({
   key: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
   itemId: null,
-  qty: '',
+  qty: '0',
   boxName: '',
   boxNumber: '',
 })
+
+const DEFAULT_LINE_COUNT = 5
+
+const hasMeaningfulQty = (qty: string) => {
+  const trimmedQty = qty.trim()
+  return trimmedQty !== '' && Number(trimmedQty) !== 0
+}
+
+const hasLineContent = (line: SlipLine) =>
+  Boolean(
+    line.itemId ||
+      hasMeaningfulQty(line.qty) ||
+      line.boxName.trim() ||
+      line.boxNumber.trim()
+  )
 
 const emptyQuickItem: QuickItemForm = {
   name: '',
@@ -81,32 +95,95 @@ export default function NewPackingSlipPage() {
   const [showQuickItem, setShowQuickItem] = useState(false)
   const [creatingItem, setCreatingItem] = useState(false)
   const [quickItemLineKey, setQuickItemLineKey] = useState<string | null>(null)
-  const [lines, setLines] = useState<SlipLine[]>([createLine()])
+  const [lines, setLines] = useState<SlipLine[]>([])
   const [working, setWorking] = useState(false)
   const [savedSlipId, setSavedSlipId] = useState<number | null>(null)
   const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null)
-  const [duplicateSlipId, setDuplicateSlipId] = useState<number | null>(null)
-  const [duplicateSlipNo, setDuplicateSlipNo] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
-  const router = useRouter()
+  const [highlightedLineKey, setHighlightedLineKey] = useState<string | null>(null)
+  const lineRowRefs = useRef<Record<string, HTMLTableRowElement | null>>({})
+  const lineItemRefs = useRef<Record<string, HTMLSelectElement | null>>({})
+  const lineBoxNameRefs = useRef<Record<string, HTMLInputElement | null>>({})
+  const pendingFocusLineKeyRef = useRef<string | null>(null)
+  const pendingBoxNameFocusLineKeyRef = useRef<string | null>(null)
+  const highlightTimeoutRef = useRef<number | null>(null)
+  const quickItemNameRef = useRef<HTMLInputElement | null>(null)
+  const shouldFocusQuickItemRef = useRef(false)
 
-  const showToast = (message: string) => {
+  const showToast = useCallback((message: string) => {
     setToast(message)
     window.setTimeout(() => setToast(null), 2600)
-  }
+  }, [])
+
+  const markLineAdded = useCallback((lineKey: string) => {
+    if (highlightTimeoutRef.current !== null) {
+      window.clearTimeout(highlightTimeoutRef.current)
+    }
+    setHighlightedLineKey(lineKey)
+    highlightTimeoutRef.current = window.setTimeout(() => {
+      setHighlightedLineKey((current) =>
+        current === lineKey ? null : current
+      )
+      highlightTimeoutRef.current = null
+    }, 300)
+  }, [])
+
+  const appendLines = useCallback(
+    (count: number, { focusLineIndex }: { focusLineIndex?: number } = {}) => {
+      const newLines = Array.from({ length: count }, () => createLine())
+      if (newLines.length === 0) return
+
+      if (typeof focusLineIndex === 'number') {
+        const nextFocusIndex = Math.min(
+          Math.max(focusLineIndex, 0),
+          newLines.length - 1
+        )
+        pendingFocusLineKeyRef.current = newLines[nextFocusIndex].key
+      }
+
+      setLines((prev) => [...prev, ...newLines])
+      markLineAdded(newLines[newLines.length - 1].key)
+    },
+    [markLineAdded]
+  )
+
+  const addLine = useCallback(
+    ({ focusItem = false } = {}) => {
+      appendLines(1, focusItem ? { focusLineIndex: 0 } : {})
+    },
+    [appendLines]
+  )
+
+  const focusLineItem = useCallback((lineKey: string) => {
+    const row = lineRowRefs.current[lineKey]
+    const itemField = lineItemRefs.current[lineKey]
+
+    if (!itemField) {
+      return false
+    }
+
+    row?.scrollIntoView({ block: 'nearest' })
+    itemField.focus()
+    return true
+  }, [])
+
+  const focusLineBoxName = useCallback((lineKey: string) => {
+    const field = lineBoxNameRefs.current[lineKey]
+
+    if (!field) {
+      return false
+    }
+
+    field.focus({ preventScroll: true })
+    return true
+  }, [])
 
   const isDirty =
     customerName.trim() ||
     shipTo.trim() ||
     poNumber.trim() ||
     vendorId !== null ||
-    lines.some(
-      (line) =>
-        line.itemId ||
-        line.qty.trim() ||
-        line.boxName.trim() ||
-        line.boxNumber.trim()
-    )
+    lines.some((line) => hasLineContent(line))
 
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => {
@@ -138,12 +215,6 @@ export default function NewPackingSlipPage() {
       setSavedSnapshot(null)
     }
   }, [customerName, shipTo, poNumber, vendorId, slipDate, lines, savedSlipId, savedSnapshot])
-
-  useEffect(() => {
-    if (!duplicateSlipId) return
-    setDuplicateSlipId(null)
-    setDuplicateSlipNo(null)
-  }, [customerName, shipTo, poNumber, vendorId, slipDate, lines, duplicateSlipId])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -205,7 +276,62 @@ export default function NewPackingSlipPage() {
     void loadItems()
     void loadNextSlip()
     return () => controller.abort()
-  }, [])
+  }, [showToast])
+
+  useEffect(
+    () => () => {
+      if (highlightTimeoutRef.current !== null) {
+        window.clearTimeout(highlightTimeoutRef.current)
+      }
+    },
+    []
+  )
+
+  useEffect(() => {
+    if (activeTab !== 'create' || lines.length !== 0) return
+    appendLines(DEFAULT_LINE_COUNT, { focusLineIndex: 0 })
+  }, [activeTab, lines.length, appendLines])
+
+  useEffect(() => {
+    if (activeTab !== 'create') return
+    const pendingLineKey = pendingFocusLineKeyRef.current
+    if (!pendingLineKey) return
+
+    const frameId = window.requestAnimationFrame(() => {
+      if (focusLineItem(pendingLineKey)) {
+        pendingFocusLineKeyRef.current = null
+      }
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [activeTab, lines, focusLineItem])
+
+  useEffect(() => {
+    if (activeTab !== 'create') return
+    const pendingLineKey = pendingBoxNameFocusLineKeyRef.current
+    if (!pendingLineKey) return
+
+    const frameId = window.requestAnimationFrame(() => {
+      if (focusLineBoxName(pendingLineKey)) {
+        pendingBoxNameFocusLineKeyRef.current = null
+      }
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [activeTab, lines, focusLineBoxName])
+
+  useEffect(() => {
+    if (!showQuickItem || !quickItemLineKey || !shouldFocusQuickItemRef.current) {
+      return
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      quickItemNameRef.current?.focus({ preventScroll: true })
+      shouldFocusQuickItemRef.current = false
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [showQuickItem, quickItemLineKey])
 
   const selectOptions = useMemo(() => {
     const map = new Map<number, ItemOption>()
@@ -251,14 +377,24 @@ export default function NewPackingSlipPage() {
   }
 
   const removeLine = (key: string) => {
-    setLines((prev) =>
-      prev.length > 1 ? prev.filter((line) => line.key !== key) : prev
-    )
+    if (quickItemLineKey === key) {
+      setShowQuickItem(false)
+      setQuickItemLineKey(null)
+      setQuickItemForm(emptyQuickItem)
+    }
+    setLines((prev) => prev.filter((line) => line.key !== key))
   }
 
   const openQuickItem = (lineKey?: string) => {
+    const fallbackLineKey = lineKey ?? lines[lines.length - 1]?.key ?? null
+    if (!fallbackLineKey) {
+      return
+    }
+
+    shouldFocusQuickItemRef.current = true
+    setQuickItemForm(emptyQuickItem)
     setShowQuickItem(true)
-    setQuickItemLineKey(lineKey ?? null)
+    setQuickItemLineKey(fallbackLineKey)
   }
 
   const closeQuickItem = () => {
@@ -295,6 +431,7 @@ export default function NewPackingSlipPage() {
       setItemCache((prev) => ({ ...prev, [saved.id]: saved }))
       if (quickItemLineKey) {
         updateLine(quickItemLineKey, { itemId: saved.id })
+        pendingBoxNameFocusLineKeyRef.current = quickItemLineKey
       }
       setQuickItemForm(emptyQuickItem)
       setQuickItemLineKey(null)
@@ -309,7 +446,7 @@ export default function NewPackingSlipPage() {
     }
   }
 
-  const createSlip = async () => {
+  const createSlip = useCallback(async () => {
     if (!customerName.trim() || !shipTo.trim()) {
       showToast('Customer name and Ship To are required.')
       return
@@ -319,15 +456,7 @@ export default function NewPackingSlipPage() {
       return
     }
 
-    const hasLineData = (line: SlipLine) =>
-      line.itemId ||
-      line.qty.trim() ||
-      line.boxName.trim() ||
-      line.boxNumber.trim()
-
-    const missingItem = lines.some(
-      (line) => !line.itemId && hasLineData(line)
-    )
+    const missingItem = lines.some((line) => !line.itemId && hasLineContent(line))
     if (missingItem) {
       showToast('Select an item for each line with box details.')
       return
@@ -371,16 +500,9 @@ export default function NewPackingSlipPage() {
       })
       if (!response.ok) {
         const data = await response.json().catch(() => ({}))
-        if (response.status === 409 && data?.slipId) {
-          setDuplicateSlipId(Number(data.slipId))
-          setDuplicateSlipNo(data.slipNo ? String(data.slipNo) : null)
-          throw new Error(data.error || 'Bill No already exists.')
-        }
         throw new Error(data.error || 'Unable to create packing slip.')
       }
       const slip = await response.json()
-      setDuplicateSlipId(null)
-      setDuplicateSlipNo(null)
       return slip
     } catch (error) {
       const message =
@@ -389,9 +511,9 @@ export default function NewPackingSlipPage() {
     } finally {
       setWorking(false)
     }
-  }
+  }, [customerName, lines, poNumber, shipTo, showToast, slipDate, vendorId])
 
-  const handleSave = async () => {
+  const savePackingSlip = useCallback(async () => {
     const slip = await createSlip()
     if (slip?.id) {
       const snapshot = JSON.stringify({
@@ -411,7 +533,38 @@ export default function NewPackingSlipPage() {
       setSavedSnapshot(snapshot)
       showToast('Slip saved.')
     }
-  }
+  }, [createSlip, customerName, lines, poNumber, shipTo, showToast, slipDate, vendorId])
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (activeTab !== 'create') return
+
+      const target = event.target
+      if (target instanceof HTMLElement && target.tagName === 'TEXTAREA') {
+        return
+      }
+
+      const isMac = navigator.platform.toUpperCase().includes('MAC')
+      const ctrlOrCmd = isMac ? event.metaKey : event.ctrlKey
+      if (!ctrlOrCmd) return
+
+      const pressedKey = event.key.toLowerCase()
+
+      if (pressedKey === 'l') {
+        event.preventDefault()
+        addLine({ focusItem: true })
+        return
+      }
+
+      if (pressedKey === 's') {
+        event.preventDefault()
+        void savePackingSlip()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [activeTab, addLine, savePackingSlip])
 
   const handlePrintSlip = () => {
     if (!savedSlipId) {
@@ -577,71 +730,163 @@ export default function NewPackingSlipPage() {
                 {lines.map((line) => {
                   const item = line.itemId ? itemCache[line.itemId] : null
                   return (
-                    <tr key={line.key}>
-                      <td>
-                        <select
-                          value={line.itemId ?? ''}
-                          onChange={(event) => {
-                            const value = event.target.value
-                            if (value === '__new__') {
-                              openQuickItem(line.key)
-                              return
+                    <Fragment key={line.key}>
+                      <tr
+                        ref={(element) => {
+                          lineRowRefs.current[line.key] = element
+                        }}
+                        className={
+                          highlightedLineKey === line.key
+                            ? 'row-added-highlight'
+                            : undefined
+                        }
+                      >
+                        <td>
+                          <select
+                            ref={(element) => {
+                              lineItemRefs.current[line.key] = element
+                            }}
+                            value={line.itemId ?? ''}
+                            onChange={(event) => {
+                              const value = event.target.value
+                              if (value === '__new__') {
+                                openQuickItem(line.key)
+                                return
+                              }
+                              updateLine(line.key, {
+                                itemId: value ? Number(value) : null,
+                              })
+                            }}
+                          >
+                            <option value="">Select item</option>
+                            <option value="__new__">+ Create item...</option>
+                            {selectOptions.map((option) => (
+                              <option key={option.id} value={option.id}>
+                                {option.name}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            ref={(element) => {
+                              lineBoxNameRefs.current[line.key] = element
+                            }}
+                            value={line.boxName}
+                            onChange={(event) =>
+                              updateLine(line.key, { boxName: event.target.value })
                             }
-                            updateLine(line.key, {
-                              itemId: value ? Number(value) : null,
-                            })
-                          }}
-                        >
-                          <option value="">Select item</option>
-                          <option value="__new__">+ Create item...</option>
-                          {selectOptions.map((option) => (
-                            <option key={option.id} value={option.id}>
-                              {option.name}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td>
-                        <input
-                          value={line.boxName}
-                          onChange={(event) =>
-                            updateLine(line.key, { boxName: event.target.value })
-                          }
-                          placeholder="Box name"
-                        />
-                      </td>
-                      <td>
-                        <input
-                          value={line.boxNumber}
-                          onChange={(event) =>
-                            updateLine(line.key, {
-                              boxNumber: event.target.value,
-                            })
-                          }
-                          placeholder="Box no"
-                        />
-                      </td>
-                      <td>{item?.unit ?? '-'}</td>
-                      <td>
-                        <input
-                          value={line.qty}
-                          onChange={(event) =>
-                            updateLine(line.key, { qty: event.target.value })
-                          }
-                          placeholder="0"
-                          inputMode="decimal"
-                        />
-                      </td>
-                      <td>
-                        <button
-                          className="btn ghost"
-                          type="button"
-                          onClick={() => removeLine(line.key)}
-                        >
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
+                            placeholder="Box name"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            value={line.boxNumber}
+                            onChange={(event) =>
+                              updateLine(line.key, {
+                                boxNumber: event.target.value,
+                              })
+                            }
+                            placeholder="Box no"
+                          />
+                        </td>
+                        <td>{item?.unit ?? '-'}</td>
+                        <td>
+                          <input
+                            type="text"
+                            value={line.qty}
+                            onChange={(event) =>
+                              updateLine(line.key, { qty: event.target.value })
+                            }
+                            onFocus={(event) => event.target.select()}
+                            onKeyDown={(event) => {
+                              if (event.key !== 'Enter') return
+                              event.preventDefault()
+                              addLine({ focusItem: true })
+                            }}
+                            placeholder="0"
+                            inputMode="decimal"
+                          />
+                        </td>
+                        <td>
+                          <button
+                            className="btn ghost"
+                            type="button"
+                            tabIndex={-1}
+                            onClick={() => removeLine(line.key)}
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                      {showQuickItem && quickItemLineKey === line.key ? (
+                        <tr className="table-inline-editor-row">
+                          <td colSpan={6}>
+                            <div className="inline-item-editor">
+                              <div className="inline-item-editor-grid">
+                                <div>
+                                  <label htmlFor={`quick-item-name-${line.key}`}>Item Name</label>
+                                  <input
+                                    ref={quickItemNameRef}
+                                    id={`quick-item-name-${line.key}`}
+                                    value={quickItemForm.name}
+                                    onChange={(event) =>
+                                      setQuickItemForm((prev) => ({
+                                        ...prev,
+                                        name: event.target.value,
+                                      }))
+                                    }
+                                    placeholder="Item name"
+                                  />
+                                </div>
+                                <div>
+                                  <label htmlFor={`quick-item-unit-${line.key}`}>Unit</label>
+                                  <input
+                                    id={`quick-item-unit-${line.key}`}
+                                    value={quickItemForm.unit}
+                                    onChange={(event) =>
+                                      setQuickItemForm((prev) => ({
+                                        ...prev,
+                                        unit: event.target.value,
+                                      }))
+                                    }
+                                    placeholder="pcs"
+                                  />
+                                </div>
+                              </div>
+                              <div className="actions">
+                                <button
+                                  className="btn"
+                                  type="button"
+                                  disabled={creatingItem}
+                                  onClick={() => void handleCreateQuickItem()}
+                                >
+                                  {creatingItem ? 'Saving...' : 'Create Item'}
+                                </button>
+                                <button
+                                  className="btn ghost"
+                                  type="button"
+                                  disabled={creatingItem}
+                                  onClick={() => {
+                                    const targetLineKey = quickItemLineKey
+                                    closeQuickItem()
+                                    if (targetLineKey) {
+                                      window.requestAnimationFrame(() => {
+                                        lineItemRefs.current[targetLineKey]?.focus({
+                                          preventScroll: true,
+                                        })
+                                      })
+                                    }
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : null}
+                    </Fragment>
                   )
                 })}
               </tbody>
@@ -650,18 +895,22 @@ export default function NewPackingSlipPage() {
               <button
                 className="btn"
                 type="button"
-                onClick={() => setLines((prev) => [...prev, createLine()])}
+                onClick={() => addLine({ focusItem: true })}
               >
                 Add Line
               </button>
-              <button className="btn secondary" type="button" onClick={() => openQuickItem()}>
+              <button
+                className="btn secondary"
+                type="button"
+                onClick={() => openQuickItem(lines[lines.length - 1]?.key)}
+              >
                 Quick Add Item
               </button>
               <button
                 className="btn"
                 type="button"
                 disabled={working}
-                onClick={() => void handleSave()}
+                onClick={() => void savePackingSlip()}
               >
                 {working ? 'Saving...' : 'Save'}
               </button>
@@ -682,94 +931,6 @@ export default function NewPackingSlipPage() {
                 {working ? 'Generating...' : 'Generate Labels'}
               </button>
             </div>
-            {duplicateSlipId ? (
-              <div className="inline-alert">
-                <span>
-                  Bill No already exists
-                  {duplicateSlipNo ? ` (${duplicateSlipNo})` : ''}.
-                </span>
-                <button
-                  className="btn ghost"
-                  type="button"
-                  onClick={() =>
-                    router.push(`/packing-slip/${duplicateSlipId}/edit`)
-                  }
-                >
-                  Edit Existing Slip
-                </button>
-              </div>
-            ) : null}
-            {showQuickItem ? (
-              <div className="inline-alert">
-                <div style={{ width: '100%' }}>
-                  <h3 className="section-title" style={{ fontSize: '1.05rem', marginBottom: '8px' }}>
-                    Create Item
-                  </h3>
-                  <div className="form-grid">
-                    <div>
-                      <label htmlFor="quick-item-name">Item Name</label>
-                      <input
-                        id="quick-item-name"
-                        value={quickItemForm.name}
-                        onChange={(event) =>
-                          setQuickItemForm((prev) => ({
-                            ...prev,
-                            name: event.target.value,
-                          }))
-                        }
-                        placeholder="Item name"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="quick-item-unit">Unit</label>
-                      <input
-                        id="quick-item-unit"
-                        value={quickItemForm.unit}
-                        onChange={(event) =>
-                          setQuickItemForm((prev) => ({
-                            ...prev,
-                            unit: event.target.value,
-                          }))
-                        }
-                        placeholder="pcs, kg, box"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="quick-item-notes">Notes</label>
-                      <input
-                        id="quick-item-notes"
-                        value={quickItemForm.notes}
-                        onChange={(event) =>
-                          setQuickItemForm((prev) => ({
-                            ...prev,
-                            notes: event.target.value,
-                          }))
-                        }
-                        placeholder="Optional"
-                      />
-                    </div>
-                  </div>
-                  <div className="actions">
-                    <button
-                      className="btn"
-                      type="button"
-                      disabled={creatingItem}
-                      onClick={() => void handleCreateQuickItem()}
-                    >
-                      {creatingItem ? 'Saving...' : 'Save Item'}
-                    </button>
-                    <button
-                      className="btn ghost"
-                      type="button"
-                      disabled={creatingItem}
-                      onClick={closeQuickItem}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : null}
           </section>
         </>
       ) : (

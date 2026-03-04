@@ -30,7 +30,11 @@ export async function GET(request: Request) {
     orderBy: { createdAt: 'desc' },
   })
 
-  return NextResponse.json(vendors)
+  return NextResponse.json(vendors, {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+    },
+  })
 }
 
 export async function POST(request: Request) {

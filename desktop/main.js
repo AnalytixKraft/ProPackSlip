@@ -2,6 +2,10 @@ const { app, BrowserWindow, shell, dialog, ipcMain } = require('electron')
 const fs = require('fs')
 const http = require('http')
 const path = require('path')
+const {
+  ensureDatabaseSchema,
+  rebuildDatabaseSchema,
+} = require('./lib/repair-database')
 
 const DEFAULT_CONFIG = {
   appUrl: 'http://localhost:3205',
@@ -168,9 +172,53 @@ const getDatabaseDebugInfo = () => {
 const startLocalServer = async (appRoot) => {
   process.env.NODE_ENV = 'production'
   process.env.DATABASE_URL = resolveDatabaseUrl()
+  let repairResult
+
+  try {
+    repairResult = await ensureDatabaseSchema({
+      databaseUrl: process.env.DATABASE_URL,
+      logger: (...args) => logInfo(...args),
+    })
+  } catch (error) {
+    logError('Database repair failed', error)
+
+    const { response } = await dialog.showMessageBox({
+      type: 'warning',
+      buttons: ['Create Fresh Database', 'Quit'],
+      defaultId: 0,
+      cancelId: 1,
+      noLink: true,
+      title: 'Database Recovery',
+      message: 'The existing database could not be repaired.',
+      detail:
+        'PackPro Slip can back up the current database file and create a new empty database with the correct schema. Choose "Create Fresh Database" only if the existing database is unusable.',
+    })
+
+    if (response !== 0) {
+      throw error
+    }
+
+    repairResult = await rebuildDatabaseSchema({
+      databaseUrl: process.env.DATABASE_URL,
+      logger: (...args) => logInfo(...args),
+    })
+  }
 
   logInfo('Starting local server', 'appRoot=', appRoot)
   logInfo('Database URL', process.env.DATABASE_URL)
+  logInfo(
+    'Database schema status',
+    repairResult.recreated
+      ? 'recreated'
+      : repairResult.changed
+        ? 'repaired'
+        : 'already current',
+    'version=',
+    repairResult.version
+  )
+  if (repairResult.backupPath) {
+    logInfo('Database backup', repairResult.backupPath)
+  }
   const dbInfo = getDatabaseDebugInfo()
   logInfo('Database path', dbInfo.dbPath, 'size=', dbInfo.size)
 
